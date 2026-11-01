@@ -1,0 +1,60 @@
+#!/usr/bin/env bash
+# Usage: rails-new-ticket <branch> <repo>...
+# Creates tickets/<branch>/<repo> as a git worktree of each submodule, on <branch>.
+# Syncs each submodule folder first (rails-sync).
+# Reuses <branch> if it already exists locally or on origin; otherwise branches off origin/main.
+set -euo pipefail
+
+if [ $# -lt 2 ]; then
+  echo "usage: rails-new-ticket <branch> <repo>..." >&2
+  echo "  e.g. rails-new-ticket FRO-123-guest-presence server webapp" >&2
+  exit 1
+fi
+
+# The workspace root: the nearest folder above the current one that prez-rails
+# was set up in (it holds .prez-rails/config.md). Works from tickets/<branch>/<repo>/ too.
+find_root() {
+  local dir="$PWD"
+  while [ "$dir" != "/" ]; do
+    if [ -f "$dir/.prez-rails/config.md" ]; then echo "$dir"; return 0; fi
+    dir="$(dirname "$dir")"
+  done
+  echo "error: no .prez-rails/config.md above $PWD; run /prez-rails:setup in the workspace root first" >&2
+  return 1
+}
+root="$(find_root)"
+branch="$1"
+shift
+
+for repo in "$@"; do
+  if ! git -C "$root" config -f .gitmodules --get "submodule.$repo.path" >/dev/null; then
+    echo "error: '$repo' is not a submodule of this workspace" >&2
+    exit 1
+  fi
+done
+
+for repo in "$@"; do
+  dest="$root/tickets/$branch/$repo"
+  if [ -e "$dest" ]; then
+    echo "$repo: $dest already exists, skipping"
+    continue
+  fi
+
+  # Exit 2 means sync skipped the folder's main; its fetch still ran, so origin/main is current.
+  status=0
+  "$(dirname "$0")/rails-sync" "$repo" || status=$?
+  if [ "$status" -ne 0 ] && [ "$status" -ne 2 ]; then
+    exit "$status"
+  fi
+
+  if git -C "$root/$repo" show-ref --verify --quiet "refs/heads/$branch"; then
+    git -C "$root/$repo" worktree add "$dest" "$branch"
+  elif git -C "$root/$repo" show-ref --verify --quiet "refs/remotes/origin/$branch"; then
+    git -C "$root/$repo" worktree add --track -b "$branch" "$dest" "origin/$branch"
+  else
+    git -C "$root/$repo" worktree add --no-track -b "$branch" "$dest" origin/main
+  fi
+done
+
+echo
+echo "ready: $root/tickets/$branch"

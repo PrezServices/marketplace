@@ -1,0 +1,7 @@
+{
+  "name": "prez-rails",
+  "version": "0.1.0",
+  "description": "prez rails: an autonomous delivery system for meta-repos. Tickets as contracts, engineer curation, ticket worktrees, review, deploy and QA, with guard hooks.",
+  "author": { "name": "PrezServices" },
+  "license": "UNLICENSED"
+}

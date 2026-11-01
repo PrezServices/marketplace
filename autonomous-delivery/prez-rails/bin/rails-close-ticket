@@ -1,0 +1,37 @@
+#!/usr/bin/env bash
+# Usage: rails-close-ticket <branch>
+# Removes every worktree under tickets/<branch>. Refuses if any has uncommitted changes.
+# Local branches are kept; delete them yourself once the PRs merge.
+set -euo pipefail
+
+if [ $# -ne 1 ]; then
+  echo "usage: rails-close-ticket <branch>" >&2
+  exit 1
+fi
+
+# The workspace root: the nearest folder above the current one that prez-rails
+# was set up in (it holds .prez-rails/config.md). Works from tickets/<branch>/<repo>/ too.
+find_root() {
+  local dir="$PWD"
+  while [ "$dir" != "/" ]; do
+    if [ -f "$dir/.prez-rails/config.md" ]; then echo "$dir"; return 0; fi
+    dir="$(dirname "$dir")"
+  done
+  echo "error: no .prez-rails/config.md above $PWD; run /prez-rails:setup in the workspace root first" >&2
+  return 1
+}
+root="$(find_root)"
+dir="$root/tickets/$1"
+
+if [ ! -d "$dir" ]; then
+  echo "error: $dir does not exist" >&2
+  exit 1
+fi
+
+for wt in "$dir"/*/; do
+  repo="$(basename "$wt")"
+  git -C "$root/$repo" worktree remove "$wt"
+  echo "$repo: removed"
+done
+
+rmdir "$dir"

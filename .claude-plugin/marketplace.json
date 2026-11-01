@@ -1,0 +1,15 @@
+{
+  "name": "prezservices",
+  "owner": { "name": "PrezServices" },
+  "metadata": {
+    "description": "PrezServices' Claude Code plugins, grouped by category."
+  },
+  "plugins": [
+    {
+      "name": "prez-rails",
+      "source": "./autonomous-delivery/prez-rails",
+      "category": "autonomous-delivery",
+      "description": "prez rails: an autonomous delivery system for meta-repos. Tickets as contracts, engineer curation, ticket worktrees, review, deploy and QA."
+    }
+  ]
+}

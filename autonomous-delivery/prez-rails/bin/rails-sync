@@ -1,0 +1,67 @@
+#!/usr/bin/env bash
+# Usage: rails-sync [repo...]
+# Puts each submodule folder (all of them by default) on main, fast-forwarded to origin/main.
+# Clones any that are missing. Skips any with local changes, a diverged main, or main checked out elsewhere.
+# Exit: 0 all synced; 2 some skipped (each named on stderr); any other non-zero is a hard failure
+# (unknown repo, clone or fetch error) and stops at that repo.
+set -euo pipefail
+
+# The workspace root: the nearest folder above the current one that prez-rails
+# was set up in (it holds .prez-rails/config.md). Works from tickets/<branch>/<repo>/ too.
+find_root() {
+  local dir="$PWD"
+  while [ "$dir" != "/" ]; do
+    if [ -f "$dir/.prez-rails/config.md" ]; then echo "$dir"; return 0; fi
+    dir="$(dirname "$dir")"
+  done
+  echo "error: no .prez-rails/config.md above $PWD; run /prez-rails:setup in the workspace root first" >&2
+  return 1
+}
+root="$(find_root)"
+
+if [ $# -eq 0 ]; then
+  # shellcheck disable=SC2046
+  set -- $(git -C "$root" config -f .gitmodules --get-regexp '^submodule\..*\.path$' | awk '{print $2}')
+fi
+
+for repo in "$@"; do
+  if ! git -C "$root" config -f .gitmodules --get "submodule.$repo.path" >/dev/null; then
+    echo "error: '$repo' is not a submodule of this workspace" >&2
+    exit 1
+  fi
+done
+
+skipped=0
+for repo in "$@"; do
+  dir="$root/$repo"
+  git -C "$root" submodule update --init --quiet "$repo"
+  git -C "$dir" fetch --quiet origin
+
+  if [ -n "$(git -C "$dir" status --porcelain)" ]; then
+    echo "$repo: has local changes, skipped" >&2
+    skipped=1
+    continue
+  fi
+
+  if git -C "$dir" show-ref --verify --quiet refs/heads/main; then
+    switch=(switch --quiet main)
+  else
+    switch=(switch --quiet --track -c main origin/main)
+  fi
+  if ! git -C "$dir" "${switch[@]}"; then
+    echo "$repo: could not switch to main, skipped" >&2
+    skipped=1
+    continue
+  fi
+
+  if git -C "$dir" merge --quiet --ff-only origin/main 2>/dev/null; then
+    echo "$repo: main at $(git -C "$dir" rev-parse --short HEAD)"
+  else
+    echo "$repo: main has diverged from origin/main, left as is" >&2
+    skipped=1
+  fi
+done
+
+if [ "$skipped" -eq 1 ]; then
+  exit 2
+fi
