@@ -11,13 +11,13 @@
       {
         "matcher": "Agent|Task",
         "hooks": [
-          { "type": "command", "command": "\"${CLAUDE_PLUGIN_ROOT}\"/hooks/guard-agent.py", "timeout": 10 }
+          { "type": "command", "command": "\"${CLAUDE_PLUGIN_ROOT}\"/hooks/guard-agent.py || exit 2", "timeout": 10 }
         ]
       },
       {
         "matcher": "Workflow",
         "hooks": [
-          { "type": "command", "command": "\"${CLAUDE_PLUGIN_ROOT}\"/hooks/guard-workflow.py", "timeout": 10 }
+          { "type": "command", "command": "\"${CLAUDE_PLUGIN_ROOT}\"/hooks/guard-workflow.py || exit 2", "timeout": 10 }
         ]
       }
     ]

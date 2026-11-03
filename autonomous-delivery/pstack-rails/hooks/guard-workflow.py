@@ -22,9 +22,9 @@ sources = [tool_input["script"]] if isinstance(tool_input.get("script"), str) el
 script_path = tool_input.get("scriptPath")
 if isinstance(script_path, str):
     try:
-        with open(os.path.join(event.get("cwd") or os.getcwd(), script_path)) as script_file:
+        with open(os.path.join(event.get("cwd") or os.getcwd(), script_path), errors="replace") as script_file:
             sources.append(script_file.read())
-    except OSError as error:
+    except (OSError, ValueError) as error:
         deny(f"{RULE} The hook could not read scriptPath {shown(script_path)}, so it refuses the run. {error}")
 if not sources:
     deny(f"{RULE} This Workflow call names no script or scriptPath, so the hook cannot read which agents it "

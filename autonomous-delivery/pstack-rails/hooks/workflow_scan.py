@@ -17,7 +17,7 @@ REGEX_AFTER_WORD = {"return", "typeof", "instanceof", "in", "of", "new", "delete
 DIVISION_AFTER = {")", "]", "}"}
 CONTINUES_EXPRESSION = {"+", "-", "*", "/", "%", ".", "?.", "?", "[", "(", "|", "&", "<", ">", "=", ":"}
 OPEN, CLOSE = {"(", "[", "{"}, {")", "]", "}"}
-DYNAMIC_CODE = {"eval", "Function"}
+DYNAMIC_CODE = {"eval", "Function", "constructor"}
 LINE_ENDS = "\n\r  "
 
 
@@ -98,12 +98,20 @@ def _read_regex(source, start):
     raise ScanError("a regular expression is never closed", start)
 
 
-def _regex_may_start(previous):
+def _regex_may_start(tokens):
+    previous = tokens[-1] if tokens else None
     if previous is None:
         return True
     if previous.kind == "id":
+        before = tokens[-2] if len(tokens) > 1 else None
+        if before is not None and before.kind == "punct" and before.text in (".", "?."):
+            return False
         return previous.text in REGEX_AFTER_WORD
     if previous.kind == "punct":
+        if previous.text in "+-" and len(tokens) > 2 and tokens[-2].text == previous.text \
+                and tokens[-2].end == previous.start and tokens[-3].kind in ("id", "num", "str", "tpl", "regex") \
+                or (len(tokens) > 2 and tokens[-3].text in DIVISION_AFTER and tokens[-2].text == previous.text):
+            return False
         return previous.text not in DIVISION_AFTER
     if previous.kind == "tpl":
         return previous.text.endswith("${")
@@ -127,7 +135,7 @@ def tokenize(source):
 
     while i < len(source):
         ch, nxt = source[i], source[i + 1:i + 2]
-        if ch.isspace():
+        if ch.isspace() or ch == "\ufeff":
             i += 1
         elif ch == "/" and nxt == "/":
             ends = [source.find(end, i) for end in LINE_ENDS]
@@ -158,7 +166,7 @@ def tokenize(source):
         elif ch == "\\":
             raise ScanError("a backslash outside a string, a template, a regular expression, or a comment can only "
                             "start an identifier escape such as \\u0061gent, which the guard cannot read.", i)
-        elif ch == "/" and _regex_may_start(tokens[-1] if tokens else None):
+        elif ch == "/" and _regex_may_start(tokens):
             push("regex", _read_regex(source, i))
         elif source.startswith("...", i):
             push("punct", i + 3)
@@ -226,8 +234,26 @@ def _strings_bound_once_by_const(tokens):
         continues = after is not None and after.kind == "punct" and after.text in CONTINUES_EXPRESSION
         if (token.text == "const" and name is not None and name.kind == "id" and equals is not None
                 and equals.text == "=" and literal is not None and not continues and declared.get(name.text) == 1):
-            values[name.text] = literal
-    return values
+            values[name.text] = (literal, index + 1)
+    # A name used anywhere else (a parameter, catch (T), destructuring, a block that shadows it) may not
+    # hold the string at the agent() call, so it doesn't resolve.
+    shadowed = set()
+    for index, token in enumerate(tokens):
+        if token.kind != "id" or token.text not in values or values[token.text][1] == index:
+            continue
+        before = tokens[index - 1] if index > 0 else None
+        key = tokens[index - 2] if index > 1 else None
+        after = tokens[index + 1] if index + 1 < len(tokens) else None
+        as_value = before is not None and before.text == ":" and key is not None and _key_name(key) == "agentType"
+        as_shorthand = (token.text == "agentType" and before is not None and before.text in ("{", ",")
+                        and after is not None and after.text in ("}", ","))
+        if not (as_value or as_shorthand):
+            shadowed.add(token.text)
+    return {name: value[0] for name, value in values.items() if name not in shadowed}
+
+
+def _key_name(token):
+    return _plain_literal(token) if token.kind == "str" else token.text
 
 
 def _agent_type_of(source, options, constants):
@@ -270,9 +296,16 @@ def scan(source):
     constants = _strings_bound_once_by_const(tokens)
     calls, problems = [], []
     for index, token in enumerate(tokens):
-        if token.kind != "id" or _use_of(tokens, index) == "key":
-            continue
         line = line_at(source, token.start)
+        if token.kind in ("str", "tpl") and _plain_literal(token) == "agent":
+            problems.append((line, 'the string "agent" can reach agent() by name, which the guard cannot follow. Call agent(...) directly.'))
+            continue
+        if token.kind != "id":
+            continue
+        if _use_of(tokens, index) == "key":
+            if token.text == "agent":
+                problems.append((line, "a key named agent can rename agent() (as in const { agent: spawn } = ...), which the guard cannot follow. Use another name."))
+            continue
         if token.text in DYNAMIC_CODE:
             problems.append((line, f"{token.text} builds code at run time, and the guard cannot read an agent() call inside it."))
         elif token.text == "workflow":

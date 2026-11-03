@@ -42,6 +42,9 @@ NO_PSTACK = claude_config(False)
 NEWEST = os.path.join(CONFIG, "plugins", "cache", "cursor-plugins", "pstack", "0.15.36")
 WHY_SKILL = os.path.join(NEWEST, "skills", "why", "SKILL.md")
 SET_UP, NOT_SET_UP, PLAIN = workspace(True), workspace(False), workspace(False, meta_repo=False)
+FAKE_SKILL = os.path.join(SET_UP, "fake", "pstack", "skills", "a", "SKILL.md")
+os.makedirs(os.path.dirname(FAKE_SKILL))
+open(FAKE_SKILL, "w").close()
 
 
 def run(hook, project, payload, config=CONFIG):
@@ -72,12 +75,14 @@ AGENT_CASES = [
     ("routed by an installed skill", {"subagent_type": "general-purpose", "prompt": f"Follow {WHY_SKILL} now."}, SET_UP, False),
     ("routed by a missing skill", {"subagent_type": "general-purpose", "prompt": "Follow /tmp/pstack/skills/why/SKILL.md"}, SET_UP, True),
     ("routed by a relative path", {"subagent_type": "general-purpose", "prompt": "Follow pstack/skills/why/SKILL.md"}, SET_UP, True),
+    ("routed by a skill outside the plugins cache", {"subagent_type": "general-purpose", "prompt": f"Follow {FAKE_SKILL}"}, SET_UP, True),
     ("not set up", {"subagent_type": "general-purpose", "prompt": "x"}, NOT_SET_UP, False),
 ]
 for name, tool_input, project, should_deny in AGENT_CASES:
     payload = json.dumps({"tool_name": "Agent", "tool_input": tool_input, "cwd": project})
     expect(f"guard-agent {name}", run("guard-agent.py", project, payload), should_deny)
 expect("guard-agent unreadable input", run("guard-agent.py", SET_UP, "not json"), True)
+expect("guard-agent input that isn't an object", run("guard-agent.py", SET_UP, "[1]"), True)
 
 
 # The Workflow guard.
@@ -100,6 +105,17 @@ WORKFLOW_CASES = [
     ("template prompt", 'await agent(`a ${b} c`, {agentType: "pstack:poteto-agent"})', False),
     ("unclosed string", 'await agent("x, {agentType: "pstack:poteto-agent"})', True),
     ("second call bad", GOOD + '\nawait agent("y", {label: "b"})', True),
+    # From the pre-push review: each one let a general-purpose agent through.
+    ("BOM before a division", 'const n = 1 \ufeff/ agent("p", {agentType: "general-purpose"}) / 2', True),
+    ("postfix ++ before a division", 'let i = 1; const n = i++ / agent("p", {agentType: "general-purpose"}) / 2', True),
+    ("keyword property before a division", 'const o = {of: 1}; const n = o.of / agent("p", {agentType: "general-purpose"}) / 2', True),
+    ("parameter shadows a const", 'const T = "pstack:poteto-agent"\nconst f = (T) => agent("p", {agentType: T})\nf("general-purpose")', True),
+    ("destructuring shadows a const", 'const T = "pstack:poteto-agent"\n{ const {T} = {T: "general-purpose"}; await agent("p", {agentType: T}) }', True),
+    ("agent renamed by destructuring", 'const { agent: spawn } = globalThis; await spawn("p", {agentType: "general-purpose"})', True),
+    ("agent by its string name", 'globalThis["agent"]("p", {agentType: "general-purpose"})', True),
+    ("code from a constructor", '(async () => {}).constructor("return agent(1)")()', True),
+    ("skill path in a comment of a fake install", f'await agent(/* {FAKE_SKILL} */ "x", {{label: "w"}})', True),
+    ("regex still after return", 'function f(s) { return /agent\\(/.test(s) }\n' + GOOD, False),
 ]
 for name, script, should_deny in WORKFLOW_CASES:
     payload = json.dumps({"tool_name": "Workflow", "tool_input": {"script": script}, "cwd": SET_UP})
@@ -110,6 +126,10 @@ with open(script_file, "w") as handle:
     handle.write('await agent("x", {label: "a"})')
 payload = json.dumps({"tool_name": "Workflow", "tool_input": {"scriptPath": "flow.js"}, "cwd": SET_UP})
 expect("guard-workflow bad scriptPath file", run("guard-workflow.py", SET_UP, payload), True)
+with open(os.path.join(SET_UP, "latin1.js"), "wb") as handle:
+    handle.write(b'// caf\xe9\nawait agent("p", {agentType: "general-purpose"})')
+payload = json.dumps({"tool_name": "Workflow", "tool_input": {"scriptPath": "latin1.js"}, "cwd": SET_UP})
+expect("guard-workflow scriptPath that isn't UTF-8", run("guard-workflow.py", SET_UP, payload), True)
 payload = json.dumps({"tool_name": "Workflow", "tool_input": {"scriptPath": "missing.js"}, "cwd": SET_UP})
 expect("guard-workflow missing scriptPath", run("guard-workflow.py", SET_UP, payload), True)
 payload = json.dumps({"tool_name": "Workflow", "tool_input": {}, "cwd": SET_UP})
@@ -159,7 +179,7 @@ if session(PLAIN):
 
 for failure in failures:
     print("FAIL", failure)
-total = len(AGENT_CASES) + 1 + len(WORKFLOW_CASES) + 5 + 3 + 4
+total = len(AGENT_CASES) + 2 + len(WORKFLOW_CASES) + 6 + 3 + 4
 print(f"orders: {len(context)}/{LIMIT} characters")
 print(f"{total - len(failures)}/{total} passed")
 sys.exit(1 if failures else 0)

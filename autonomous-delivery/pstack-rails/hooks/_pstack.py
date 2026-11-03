@@ -52,10 +52,23 @@ def newest_pstack(cache=None):
     return max(installs)[1] if installs else None
 
 
+def installed_pstack_roots(cache=None):
+    cache = cache or plugins_cache()
+    return [os.path.realpath(os.path.join(cache, marketplace, "pstack", version))
+            for marketplace in _folders(cache) for version in _folders(os.path.join(cache, marketplace, "pstack"))
+            if VERSION.match(version)]
+
+
 def names_installed_skill(text):
+    """True when the text names the SKILL.md of a pstack installed in the plugins cache."""
+    roots = None
     for named in SKILL_FILE.findall(text or ""):
         path = os.path.expanduser(named)
-        if PSTACK_SKILL.search(path) and os.path.isabs(path) and os.path.isfile(path):
+        if not (os.path.isabs(path) and PSTACK_SKILL.search(path) and os.path.isfile(path)):
+            continue
+        roots = installed_pstack_roots() if roots is None else roots
+        real = os.path.realpath(path)
+        if any(re.match(re.escape(root + os.sep) + r"skills/[a-z0-9][a-z0-9-]*/SKILL\.md$", real) for root in roots):
             return True
     return False
 
@@ -73,9 +86,12 @@ def read_event():
     if not configured(project_root()):
         sys.exit(0)
     try:
-        return json.load(sys.stdin)
+        event = json.load(sys.stdin)
     except ValueError as error:
         deny(f"{RULE} The hook could not read the call, so it refuses it. {error}")
+    if not isinstance(event, dict) or not isinstance(event.get("tool_input") or {}, dict):
+        deny(f"{RULE} The hook could not read the call, so it refuses it.")
+    return event
 
 
 def deny(reason):
