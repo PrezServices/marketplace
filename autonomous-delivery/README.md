@@ -35,3 +35,4 @@ So teams can try one, drop it and try another, each delivery system here:
 | System | What sets it apart |
 | --- | --- |
 | [`prez-rails`](prez-rails/) | Tickets are contracts: an engineer curates each one so anyone, engineer or not, can drive it from ticket to PR to QA |
+| [`pstack-rails`](pstack-rails/) | pstack's playbooks decide the work: every session starts at `/pstack:poteto-mode`, and subagents run as pstack's agents |

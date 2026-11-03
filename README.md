@@ -18,6 +18,7 @@ own git credentials (`gh auth login` is enough).
 | Plugin | Category | What it is |
 | --- | --- | --- |
 | [`prez-rails`](autonomous-delivery/prez-rails/) | autonomous-delivery | An autonomous delivery system for meta-repos |
+| [`pstack-rails`](autonomous-delivery/pstack-rails/) | autonomous-delivery | Runs a workspace on pstack, with its entry point and agent guards |
 
 The catalog is `.claude-plugin/marketplace.json`. Plugins are grouped by
 category, one folder per category.
