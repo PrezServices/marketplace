@@ -66,9 +66,15 @@ what it can't tell you, one question at a time:
 Done when every section is filled or explicitly `none`, and the user has seen
 the file.
 
-## 4. Land it
+## 4. The workspace
 
-Commit on a branch, staging by path (`.pstack-rails/`, `.claude/settings.json`),
+Ticket worktrees live in `tickets/<branch>/<repo>/`. Add `tickets/` to
+`.gitignore`, showing the change first.
+
+## 5. Land it
+
+Commit on a branch, staging by path (`.pstack-rails/`, `.claude/settings.json`,
+`.gitignore`),
 and open a PR on the workspace repo. Then tell the user, in three lines: what
 was written, that pstack loads from the next session, and that work starts
 with `/pstack-rails:create-task` or "implement <KEY>".

@@ -19,6 +19,9 @@ playbook and skills. pstack rails adds what a workspace needs around it:
   GitHub Issues. "implement <KEY>" (`pstack-rails:implement-task`) reads it,
   moves it to in progress, hands it to `/pstack:poteto-mode`, and links the
   PRs. No curation step: pstack does its own planning.
+- **Workspace guards**, the same as prez rails': submodule folders stay clean
+  on `main` (work happens in `tickets/<branch>/<repo>/` worktrees), no
+  sweeping `git add` at the root, no force push or push to `main`.
 - **The cursor-team-kit skills pstack names**, ported: `/pstack-rails:deslop`,
   `/pstack-rails:control-ui`, `/pstack-rails:control-cli`. cursor-team-kit has
   no Claude Code build.
@@ -50,7 +53,7 @@ To remove it, or to switch delivery systems: `/pstack-rails:teardown`, then
 | Path | What it is |
 | --- | --- |
 | `orders.md` | What session start injects in a set-up workspace |
-| `hooks/` | Session start, the `Agent` and `Workflow` guards, and `workflow_scan.py`, which reads `agent()` calls without running the script |
+| `hooks/` | Session start; the `Agent` and `Workflow` guards, with `workflow_scan.py`, which reads `agent()` calls without running the script; and the workspace guards (`no-*.py`) |
 | `skills/create-task`, `skills/implement-task` | File a ticket; pick one up and hand it to pstack |
 | `trackers/` | One adapter per tracker: Linear, Jira, GitHub Issues |
 | `skills/setup`, `skills/teardown` | The contract's two skills |
@@ -83,6 +86,7 @@ bump `version` in `.claude-plugin/plugin.json`, and open a PR.
 
 ```sh
 python3 hooks/test_hooks.py
+python3 hooks/test_guards.py
 python3 scripts/port-cursor-plugin.py --check
 ```
 

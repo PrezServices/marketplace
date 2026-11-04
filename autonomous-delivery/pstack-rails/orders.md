@@ -14,5 +14,9 @@ This workspace delivers through **pstack**, installed at `${PSTACK_ROOT}`.
   other type, in the `Agent` tool and in `Workflow` scripts alike.
 - When pstack names a skill from `cursor-team-kit` (`/deslop`, `control-ui`,
   `control-cli`), it is `/pstack-rails:<name>` here.
+- Submodule folders stay clean on `main`. Each ticket works in
+  `tickets/<branch>/<repo>/` worktrees, which `implement-task` creates; stage
+  by path at the root. Guards refuse edits and git writes in a submodule
+  folder, sweeping adds at the root, force pushes and pushes to `main`.
 - The project's own facts (tracker, repos, deploys, standing orders) are in
   `.pstack-rails/config.md`. Read it before the first change of a session.

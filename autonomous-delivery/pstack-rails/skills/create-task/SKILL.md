@@ -14,9 +14,13 @@ description: >-
 
 The reader is pstack, picking the ticket up through `implement-task` with no
 context beyond the ticket. Everything it needs to plan the work is in it;
-nothing that leaves what it does unchanged is. pstack does its own design and
-verification, so the ticket says what and why, and settles only the
-decisions already made.
+nothing that leaves what it does unchanged is.
+
+The ticket has two halves. **Goals, Non-goals and Acceptance criteria** are
+the commitment: what gets delivered and how anyone can tell. pstack builds to
+them and doesn't change them. **Functional requirements and Tech decisions**
+are the starting design: the best current answer to how, which pstack may
+revise as it learns the code, writing each change back into the ticket.
 
 **Tracker.** Read the **Tracker** section of `.pstack-rails/config.md`, then
 the adapter it names in `${CLAUDE_PLUGIN_ROOT}/trackers/`. Every create, read,
@@ -96,32 +100,28 @@ go in Tech decisions.
 
 **Functional requirements**: open with a **technical brief** of a handful of
 lines: the approach, the touchpoints (module, route, table, cache,
-queue), the data sources, and what was decided rather than discovered. Then
-the requirements, numbered, each a decision already made. When writing the brief
-shows the approach isn't decided, say so in the ticket.
+queue), the data sources, and what is already known rather than guessed.
+Then the requirements, numbered. When writing the brief shows the approach
+isn't known yet, say so in the ticket and leave it to pstack.
 
-**Tech decisions**: the execution contract, everything the implementer must
-not re-derive or re-argue:
+**Tech decisions**: what is known about how, so pstack starts from it rather
+than rediscovering it:
 
-- **Codebase facts**, marked "already diagnosed, don't re-derive": paths with
-  line numbers, columns, enum members, cron rates, helpers. Each one read
-  before it is written; a wrong fact costs more than a missing one.
+- **Codebase facts**: paths with line numbers, columns, enum members, cron
+  rates, helpers. Each one read before it is written; a wrong fact costs more
+  than a missing one.
 - **Reuse from <KEY>**, when extending shipped work.
 - **Access patterns**, when the work reads or writes stored data: the key or
   index each one uses, how often it runs, what it touches.
-- **Decisions** with their alternatives closed.
+- **Decisions** made so far, with the reason for each.
 - **Do not touch**: paths, not concepts.
 - **Gates** the PR passes, as the repo's `CLAUDE.md` and CI name them.
 
-Everything not decided here is pstack's to decide; leave it out rather than
-guess.
-
-End the section with: "Anything that contradicts these decisions is raised
-before implementing, never resolved silently in the PR."
+Leave out what isn't known rather than guess; it's pstack's to work out.
 
 Each line lives in exactly one of Acceptance criteria (what gets proven), the
-technical brief (what the plan assumes) and Tech decisions (execution
-constraints).
+technical brief (what the plan assumes) and Tech decisions (what is known
+about how).
 
 **Slicing**: one line per PR, in merge order, with each sub-task's key.
 
