@@ -13,10 +13,25 @@ the change belongs to.
 | --- | --- | --- |
 | `<folder>` | `<owner/repo>` | <one line> |
 
-## Forge and tracker
+## Tracker
+
+- **Adapter:** `<linear | jira | github-issues>` (`${CLAUDE_PLUGIN_ROOT}/trackers/<adapter>.md`)
+- <the adapter's keys: Linear team key; Jira cloud id, project key, board id; GitHub issues repo and project number>
+
+| Logical status | Status in the tracker |
+| --- | --- |
+| `backlog` | |
+| `in-progress` | |
+| `in-review` | |
+| `done` | |
+| `blocked` | |
+| `cancelled` | |
+
+A status left blank is skipped by the skills, which say so.
+
+## Forge
 
 - **Forge:** `<GitHub (gh) | other>`
-- **Tracker:** `<where work is tracked, e.g. Linear team FRO, or none>`
 
 ## Deploys
 

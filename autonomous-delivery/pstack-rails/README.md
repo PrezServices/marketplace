@@ -13,6 +13,12 @@ playbook and skills. pstack rails adds what a workspace needs around it:
   spawn that isn't `pstack:poteto-agent`, `pstack:comment-sicko`, a read-only
   `Explore`, or an agent whose prompt names an installed pstack `SKILL.md`.
   The refusal names the fix.
+- **Tickets before pstack.** `/pstack-rails:create-task` files a ticket with
+  seven fixed sections (problem, context, goals, non-goals, acceptance
+  criteria, functional requirements, tech decisions) in Linear, Jira or
+  GitHub Issues. "implement <KEY>" (`pstack-rails:implement-task`) reads it,
+  moves it to in progress, hands it to `/pstack:poteto-mode`, and links the
+  PRs. No curation step: pstack does its own planning.
 - **The cursor-team-kit skills pstack names**, ported: `/pstack-rails:deslop`,
   `/pstack-rails:control-ui`, `/pstack-rails:control-cli`. cursor-team-kit has
   no Claude Code build.
@@ -32,8 +38,9 @@ claude plugin install pstack-rails@prezservices --scope project
 ```
 
 Start Claude there and run `/pstack-rails:setup`. It installs pstack when it's
-missing, writes `.pstack-rails/config.md`, and opens a PR. From the next
-session on, start work with `/pstack:poteto-mode`.
+missing, maps your tracker's statuses, writes `.pstack-rails/config.md`, and
+opens a PR. From the next session on, file work with
+`/pstack-rails:create-task` and start it with "implement <KEY>".
 
 To remove it, or to switch delivery systems: `/pstack-rails:teardown`, then
 `claude plugin uninstall pstack-rails@prezservices --scope project`.
@@ -44,6 +51,8 @@ To remove it, or to switch delivery systems: `/pstack-rails:teardown`, then
 | --- | --- |
 | `orders.md` | What session start injects in a set-up workspace |
 | `hooks/` | Session start, the `Agent` and `Workflow` guards, and `workflow_scan.py`, which reads `agent()` calls without running the script |
+| `skills/create-task`, `skills/implement-task` | File a ticket; pick one up and hand it to pstack |
+| `trackers/` | One adapter per tracker: Linear, Jira, GitHub Issues |
 | `skills/setup`, `skills/teardown` | The contract's two skills |
 | `skills/deslop`, `skills/control-ui`, `skills/control-cli` | Ported from cursor-team-kit; never edited by hand |
 | `ported.json` | The source, pinned commit and file hashes of every ported skill |

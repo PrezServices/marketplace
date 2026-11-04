@@ -3,7 +3,7 @@ name: setup
 description: >-
   Set up pstack rails in a workspace after installing the plugin: make sure
   pstack itself is installed and its models chosen, then write the project
-  config (repos, forge, deploys, standing orders). Use right after `claude
+  config (tracker, repos, forge, deploys, standing orders). Use right after `claude
   plugin install pstack-rails@...`, when the session-start reminder says the
   workspace isn't set up, or to re-run setup after adding a repo.
 disable-model-invocation: true
@@ -52,8 +52,16 @@ whether the models step is left.
 Fill `${CLAUDE_PLUGIN_ROOT}/templates/config.md` into `.pstack-rails/config.md`.
 Read what the workspace shows (`.gitmodules`, each repo's README and
 `CLAUDE.md`, the root `CLAUDE.md`, `.github/workflows/`) and ask the user only
-what it can't tell you, one question at a time: the tracker, who triggers
-deploys, and any standing orders.
+what it can't tell you, one question at a time:
+
+- **Tracker.** Which adapter in `${CLAUDE_PLUGIN_ROOT}/trackers/`, then its
+  keys. Use the adapter's tools to list the real teams, projects and statuses
+  instead of asking the user to type them, and map each logical status from
+  what exists. A logical status with no real match stays blank; tell the
+  user. When the tracker's tools aren't connected, say which to connect and
+  wait.
+- **Deploys.** Who triggers: `session` or `user`.
+- **Standing orders**, if any.
 
 Done when every section is filled or explicitly `none`, and the user has seen
 the file.
@@ -63,4 +71,4 @@ the file.
 Commit on a branch, staging by path (`.pstack-rails/`, `.claude/settings.json`),
 and open a PR on the workspace repo. Then tell the user, in three lines: what
 was written, that pstack loads from the next session, and that work starts
-with `/pstack:poteto-mode`.
+with `/pstack-rails:create-task` or "implement <KEY>".
