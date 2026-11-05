@@ -3,9 +3,10 @@
 This workspace delivers through **pstack**, installed at `${PSTACK_ROOT}`.
 
 <!-- with tracker -->
-- Work starts from a ticket. File one with `pstack-rails:create-task`; pick
-  one up with "implement <KEY>" (`pstack-rails:implement-task`), which hands
-  it to `/pstack:poteto-mode`. Work with no ticket gets one first.
+- Work starts from a ticket: "implement <KEY>" (`pstack-rails:implement-task`)
+  hands it to `/pstack:poteto-mode`. Work with no ticket gets one first,
+  through `prez-brief:create-task` when prez brief is installed, or filed by
+  the user. Tickets follow `${PLUGIN_ROOT}/ticket.md`.
 <!-- without tracker -->
 - This workspace has no tracker: start work with `/pstack:poteto-mode`
   directly. Each PR description says what it is for, what changed and how it

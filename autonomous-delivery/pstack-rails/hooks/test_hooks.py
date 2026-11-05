@@ -163,7 +163,7 @@ def session(project, config=CONFIG):
 
 output = session(SET_UP)
 context = output.get("hookSpecificOutput", {}).get("additionalContext", "")
-if "/pstack:poteto-mode" not in context or NEWEST not in context or "${PSTACK_ROOT}" in context:
+if "/pstack:poteto-mode" not in context or NEWEST not in context or "${PSTACK_ROOT}" in context or "${PLUGIN_ROOT}" in context:
     failures.append(f"session-start set up: expected orders with the newest pstack path: {context[:200]}")
 if len(context) > LIMIT:
     failures.append(f"session-start orders are {len(context)} characters, over the {LIMIT} cap")
@@ -187,7 +187,7 @@ for line, ticketed in [("- **Adapter:** `linear` (team FRO)", True), ("- **Adapt
                        ("- **Adapter:** `none`", False), ("- **Adapter:** `<linear | jira | github-issues | none>`", False),
                        ("", False)]:
     text = orders_for(line)
-    if ("create-task" in text) != ticketed or ("no tracker" in text) == ticketed or "<!--" in text:
+    if ("implement <KEY>" in text) != ticketed or ("no tracker" in text) == ticketed or "<!--" in text:
         failures.append(f"session-start orders for {line or 'no adapter line'!r}: expected tickets={ticketed}: {text[:300]}")
 
 

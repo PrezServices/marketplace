@@ -1,31 +1,32 @@
 ---
 name: create-task
 description: >-
-  Write or rewrite a task or sub-task in the workspace's tracker so pstack
-  can build it without guessing: seven fixed sections, facts and required
-  changes only, values spelled out, tables for mappings, and acceptance
-  criteria that are tests. Use when asked to file, write or open a ticket or
-  issue, update one whose scope changed, break work into sub-tasks, or clean
-  up a ticket that describes a design that no longer holds. To build a filed
-  ticket use `pstack-rails:implement-task`.
+  Write or rewrite a task or sub-task in the workspace's tracker so the
+  delivery system can build it without guessing: seven fixed sections, facts
+  and required changes only, values spelled out, tables for mappings, and
+  acceptance criteria that are tests. Use when asked to file, write or open a
+  ticket or issue, update one whose scope changed, break work into
+  sub-tasks, or clean up a ticket that describes a design that no longer
+  holds.
 ---
 
 # Writing a task
 
-The reader is pstack, picking the ticket up through `implement-task` with no
-context beyond the ticket. Everything it needs to plan the work is in it;
-nothing that leaves what it does unchanged is.
+The reader is the delivery system that picks the ticket up (pstack rails,
+prez rails, or a person), with no context beyond the ticket. Everything it
+needs to plan the work is in it; nothing that leaves what it does unchanged
+is. The sections, their two halves and the statuses are those of
+`${CLAUDE_PLUGIN_ROOT}/ticket.md`, the contract delivery systems read
+tickets by.
 
-The ticket has two halves. **Goals, Non-goals and Acceptance criteria** are
-the commitment: what gets delivered and how anyone can tell. pstack builds to
-them and doesn't change them. **Functional requirements and Tech decisions**
-are the starting design: the best current answer to how, which pstack may
-revise as it learns the code, writing each change back into the ticket.
+The ticket has two halves. **Problem statement to Acceptance criteria** are
+the commitment: what gets delivered and how anyone can tell. The delivery
+system builds to them and doesn't change them. **Functional requirements and
+Tech decisions** are the starting design: the best current answer to how,
+which the delivery system may revise as it learns the code, writing each
+change back into the ticket.
 
-**Tracker.** Read the **Tracker** section of `.pstack-rails/config.md`. When
-its adapter is `none` (or missing), this workspace works without tickets:
-say so in one line, offer to take the request straight to
-`/pstack:poteto-mode`, and stop here. Otherwise read
+**Tracker.** Read the **Tracker** section of `.prez-brief/config.md`, then
 the adapter it names in `${CLAUDE_PLUGIN_ROOT}/trackers/`. Every create, read,
 update, link and transition below goes through that adapter.
 
@@ -88,8 +89,8 @@ sentences. What the system cannot do, not the story of finding out.
 
 **Non-goals**: what it does not attempt, each naming the ticket that owns it.
 
-**Acceptance criteria**: the observable outcomes pstack proves before the PR
-lands, and anyone can check on the shipped behaviour. Each bullet is a test someone can write, phrased as behaviour a
+**Acceptance criteria**: the observable outcomes the delivery system proves
+before the PR lands, and anyone can check on the shipped behaviour. Each bullet is a test someone can write, phrased as behaviour a
 person sees (a customer, an operator, a screen) in domain words, even for a
 backend-only ticket. Endpoints, status codes, field and table names, flags,
 retry counts and test data belong in Functional requirements; the criterion
@@ -105,9 +106,9 @@ go in Tech decisions.
 lines: the approach, the touchpoints (module, route, table, cache,
 queue), the data sources, and what is already known rather than guessed.
 Then the requirements, numbered. When writing the brief shows the approach
-isn't known yet, say so in the ticket and leave it to pstack.
+isn't known yet, say so in the ticket and leave it to the delivery system.
 
-**Tech decisions**: what is known about how, so pstack starts from it rather
+**Tech decisions**: what is known about how, so the builder starts from it rather
 than rediscovering it:
 
 - **Codebase facts**: paths with line numbers, columns, enum members, cron
@@ -120,7 +121,7 @@ than rediscovering it:
 - **Do not touch**: paths, not concepts.
 - **Gates** the PR passes, as the repo's `CLAUDE.md` and CI name them.
 
-Leave out what isn't known rather than guess; it's pstack's to work out.
+Leave out what isn't known rather than guess; it's the builder's to work out.
 
 Each line lives in exactly one of Acceptance criteria (what gets proven), the
 technical brief (what the plan assumes) and Tech decisions (what is known
@@ -177,8 +178,8 @@ the human's call; updating one the user asked you to update is not.
 5. **Assignee.** The human driving the session, resolved through the adapter.
    Never unassigned, never the agent.
 
-A filed ticket is ready to build: "implement <KEY>" hands it to pstack
-through `pstack-rails:implement-task`.
+A filed ticket goes to the delivery system the workspace runs: "implement
+<KEY>" picks it up in pstack rails; prez rails curates it first.
 
 ## Writing prose
 

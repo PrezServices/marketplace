@@ -54,7 +54,9 @@ Read what the workspace shows (`.gitmodules`, each repo's README and
 `CLAUDE.md`, the root `CLAUDE.md`, `.github/workflows/`) and ask the user only
 what it can't tell you, one question at a time:
 
-- **Tracker.** Which adapter in `${CLAUDE_PLUGIN_ROOT}/trackers/`, or `none`.
+- **Tracker.** When `.prez-brief/config.md` has a **Tracker** section, offer
+  to copy its adapter and keys, then map the statuses below it. Otherwise:
+  which adapter in `${CLAUDE_PLUGIN_ROOT}/trackers/`, or `none`.
   `none` suits a repo no one team owns, such as a shared platform repo where
   any team adds its own piece: work goes straight to `/pstack:poteto-mode`,
   with no tickets. Propose it when the workspace shows no tracker in use. With
@@ -82,5 +84,5 @@ Commit on a branch, staging by path (`.pstack-rails/`, `.claude/settings.json`,
 `.gitignore`),
 and open a PR on the workspace repo. Then tell the user, in three lines: what
 was written, that pstack loads from the next session, and that work starts
-with `/pstack-rails:create-task` or "implement <KEY>", or, with no tracker,
-with `/pstack:poteto-mode`.
+with "implement <KEY>", or, with no tracker, with `/pstack:poteto-mode`. When
+prez brief isn't installed, mention that it writes the tickets.

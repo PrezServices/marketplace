@@ -17,6 +17,7 @@ own git credentials (`gh auth login` is enough).
 
 | Plugin | Category | What it is |
 | --- | --- | --- |
+| [`prez-brief`](autonomous-delivery/prez-brief/) | autonomous-delivery | The product side: shapes work and writes the ticket a delivery system builds |
 | [`prez-rails`](autonomous-delivery/prez-rails/) | autonomous-delivery | An autonomous delivery system for meta-repos |
 | [`pstack-rails`](autonomous-delivery/pstack-rails/) | autonomous-delivery | Runs a workspace on pstack, with its entry point and agent guards |
 

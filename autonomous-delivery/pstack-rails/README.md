@@ -13,10 +13,9 @@ playbook and skills. pstack rails adds what a workspace needs around it:
   spawn that isn't `pstack:poteto-agent`, `pstack:comment-sicko`, a read-only
   `Explore`, or an agent whose prompt names an installed pstack `SKILL.md`.
   The refusal names the fix.
-- **Tickets before pstack.** `/pstack-rails:create-task` files a ticket with
-  seven fixed sections (problem, context, goals, non-goals, acceptance
-  criteria, functional requirements, tech decisions) in Linear, Jira or
-  GitHub Issues. "implement <KEY>" (`pstack-rails:implement-task`) reads it,
+- **Tickets before pstack.** A ticket follows [the ticket contract](../ticket.md),
+  filed by [prez brief](../prez-brief/) when the workspace installs it, or by
+  hand. "implement <KEY>" (`pstack-rails:implement-task`) reads it,
   moves it to in progress, hands it to `/pstack:poteto-mode`, and links the
   PRs. No curation step: pstack does its own planning. **Optional:** a repo no
   one team owns (a shared platform repo where any team adds its piece) sets
@@ -44,8 +43,8 @@ claude plugin install pstack-rails@prezservices --scope project
 
 Start Claude there and run `/pstack-rails:setup`. It installs pstack when it's
 missing, maps your tracker's statuses, writes `.pstack-rails/config.md`, and
-opens a PR. From the next session on, file work with
-`/pstack-rails:create-task` and start it with "implement <KEY>".
+opens a PR. From the next session on, start a ticket with "implement <KEY>".
+To have tickets written for you, add [prez brief](../prez-brief/).
 
 To remove it, or to switch delivery systems: `/pstack-rails:teardown`, then
 `claude plugin uninstall pstack-rails@prezservices --scope project`.
@@ -56,7 +55,8 @@ To remove it, or to switch delivery systems: `/pstack-rails:teardown`, then
 | --- | --- |
 | `orders.md` | What session start injects in a set-up workspace |
 | `hooks/` | Session start; the `Agent` and `Workflow` guards, with `workflow_scan.py`, which reads `agent()` calls without running the script; and the workspace guards (`no-*.py`) |
-| `skills/create-task`, `skills/implement-task` | File a ticket; pick one up and hand it to pstack |
+| `skills/implement-task` | Pick a ticket up and hand it to pstack |
+| `ticket.md` | A copy of the [ticket contract](../ticket.md) |
 | `trackers/` | One adapter per tracker: Linear, Jira, GitHub Issues |
 | `skills/setup`, `skills/teardown` | The contract's two skills |
 | `skills/deslop`, `skills/control-ui`, `skills/control-cli` | Ported from cursor-team-kit; never edited by hand |

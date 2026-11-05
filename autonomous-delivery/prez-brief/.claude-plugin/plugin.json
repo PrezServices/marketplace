@@ -1,0 +1,7 @@
+{
+  "name": "prez-brief",
+  "version": "0.1.0",
+  "description": "prez brief: the product side of autonomous delivery. Shapes work with grilling, research and prototypes, and writes the seven-section ticket in Linear, Jira or GitHub Issues for a delivery system to build.",
+  "author": { "name": "PrezServices" },
+  "license": "UNLICENSED"
+}
