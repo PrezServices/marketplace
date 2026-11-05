@@ -15,8 +15,11 @@ the change belongs to.
 
 ## Tracker
 
-- **Adapter:** `<linear | jira | github-issues>` (`${CLAUDE_PLUGIN_ROOT}/trackers/<adapter>.md`)
+- **Adapter:** `<linear | jira | github-issues | none>` (`${CLAUDE_PLUGIN_ROOT}/trackers/<adapter>.md`)
 - <the adapter's keys: Linear team key; Jira cloud id, project key, board id; GitHub issues repo and project number>
+
+With `none`, the workspace works without tickets: requests go straight to
+`/pstack:poteto-mode`, and the keys and status table below are removed.
 
 | Logical status | Status in the tracker |
 | --- | --- |

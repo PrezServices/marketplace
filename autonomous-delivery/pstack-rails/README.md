@@ -18,7 +18,9 @@ playbook and skills. pstack rails adds what a workspace needs around it:
   criteria, functional requirements, tech decisions) in Linear, Jira or
   GitHub Issues. "implement <KEY>" (`pstack-rails:implement-task`) reads it,
   moves it to in progress, hands it to `/pstack:poteto-mode`, and links the
-  PRs. No curation step: pstack does its own planning.
+  PRs. No curation step: pstack does its own planning. **Optional:** a repo no
+  one team owns (a shared platform repo where any team adds its piece) sets
+  the tracker to `none` and sends work straight to `/pstack:poteto-mode`.
 - **Workspace guards**, the same as prez rails': submodule folders stay clean
   on `main` (work happens in `tickets/<branch>/<repo>/` worktrees), no
   sweeping `git add` at the root, no force push or push to `main`.

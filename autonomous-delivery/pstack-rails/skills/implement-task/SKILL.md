@@ -20,7 +20,10 @@ Tech decisions are the starting design: pstack may change them, as an
 engineer curating the ticket would, as long as it writes each change back
 into the ticket.
 
-**Tracker.** Read the **Tracker** section of `.pstack-rails/config.md`, then
+**Tracker.** Read the **Tracker** section of `.pstack-rails/config.md`. When
+its adapter is `none` (or missing), this workspace works without tickets:
+say so in one line, offer to take the request straight to
+`/pstack:poteto-mode`, and stop here. Otherwise read
 the adapter it names in `${CLAUDE_PLUGIN_ROOT}/trackers/`. Every read,
 comment and transition below goes through that adapter.
 

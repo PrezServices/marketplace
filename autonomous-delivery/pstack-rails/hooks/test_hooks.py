@@ -177,9 +177,23 @@ if session(PLAIN):
     failures.append("session-start unrelated folder: expected silence")
 
 
+def orders_for(adapter_line):
+    with open(os.path.join(SET_UP, ".pstack-rails", "config.md"), "w") as config_file:
+        config_file.write(f"## Tracker\n\n{adapter_line}\n")
+    return session(SET_UP).get("hookSpecificOutput", {}).get("additionalContext", "")
+
+
+for line, ticketed in [("- **Adapter:** `linear` (team FRO)", True), ("- **Adapter:** `github-issues`", True),
+                       ("- **Adapter:** `none`", False), ("- **Adapter:** `<linear | jira | github-issues | none>`", False),
+                       ("", False)]:
+    text = orders_for(line)
+    if ("create-task" in text) != ticketed or ("no tracker" in text) == ticketed or "<!--" in text:
+        failures.append(f"session-start orders for {line or 'no adapter line'!r}: expected tickets={ticketed}: {text[:300]}")
+
+
 for failure in failures:
     print("FAIL", failure)
-total = len(AGENT_CASES) + 2 + len(WORKFLOW_CASES) + 6 + 3 + 4
+total = len(AGENT_CASES) + 2 + len(WORKFLOW_CASES) + 6 + 3 + 4 + 5
 print(f"orders: {len(context)}/{LIMIT} characters")
 print(f"{total - len(failures)}/{total} passed")
 sys.exit(1 if failures else 0)

@@ -54,7 +54,12 @@ Read what the workspace shows (`.gitmodules`, each repo's README and
 `CLAUDE.md`, the root `CLAUDE.md`, `.github/workflows/`) and ask the user only
 what it can't tell you, one question at a time:
 
-- **Tracker.** Which adapter in `${CLAUDE_PLUGIN_ROOT}/trackers/`, then its
+- **Tracker.** Which adapter in `${CLAUDE_PLUGIN_ROOT}/trackers/`, or `none`.
+  `none` suits a repo no one team owns, such as a shared platform repo where
+  any team adds its own piece: work goes straight to `/pstack:poteto-mode`,
+  with no tickets. Propose it when the workspace shows no tracker in use. With
+  `none`, write the Adapter line as `none` and drop the keys and the status
+  table. Otherwise, the adapter's
   keys. Use the adapter's tools to list the real teams, projects and statuses
   instead of asking the user to type them, and map each logical status from
   what exists. A logical status with no real match stays blank; tell the
@@ -77,4 +82,5 @@ Commit on a branch, staging by path (`.pstack-rails/`, `.claude/settings.json`,
 `.gitignore`),
 and open a PR on the workspace repo. Then tell the user, in three lines: what
 was written, that pstack loads from the next session, and that work starts
-with `/pstack-rails:create-task` or "implement <KEY>".
+with `/pstack-rails:create-task` or "implement <KEY>", or, with no tracker,
+with `/pstack:poteto-mode`.
