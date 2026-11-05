@@ -1,6 +1,8 @@
 {
   "name": "prezservices",
-  "owner": { "name": "PrezServices" },
+  "owner": {
+    "name": "PrezServices"
+  },
   "metadata": {
     "description": "PrezServices' Claude Code plugins, grouped by category."
   },
@@ -10,6 +12,12 @@
       "source": "./autonomous-delivery/prez-rails",
       "category": "autonomous-delivery",
       "description": "prez rails: an autonomous delivery system for meta-repos. Tickets as contracts, engineer curation, ticket worktrees, review, deploy and QA."
+    },
+    {
+      "name": "pstack-rails",
+      "source": "./autonomous-delivery/pstack-rails",
+      "category": "autonomous-delivery",
+      "description": "pstack rails: runs a workspace on pstack (Cursor's pstack@cursor-plugins). Points every session at /pstack:poteto-mode, keeps subagents to pstack's agents, and ports the cursor-team-kit skills pstack names."
     }
   ]
 }
