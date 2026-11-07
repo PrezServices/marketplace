@@ -44,7 +44,7 @@ Give the user the commands, to run themselves:
 
 ```sh
 claude plugin uninstall pstack-rails@prezservices --scope project
-claude plugin uninstall pstack@cursor-plugins --scope project   # only when pstack goes too
+claude plugin prune --scope project   # removes pstack, unless the user installed it themselves or keeps it
 ```
 
 The hooks already stand down once `.pstack-rails/config.md` is gone. Run

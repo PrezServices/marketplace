@@ -24,8 +24,8 @@ try:
 except ValueError:
     pass
 
-INSTALL = ("claude plugin marketplace add cursor/plugins --scope project && "
-           "claude plugin install pstack@cursor-plugins --scope project")
+# pstack rails declares pstack as a dependency, so adding Cursor's marketplace installs it.
+INSTALL = "claude plugin marketplace add cursor/plugins --scope project"
 
 
 TRACKERS = ("linear", "jira", "github-issues")
