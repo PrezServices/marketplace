@@ -28,9 +28,8 @@ One list, before touching anything:
 - `.pstack-rails/`, the whole folder. Offer to keep the repos table and
   standing orders somewhere neutral first when the next delivery system could
   use them.
-- pstack itself: the `pstack@cursor-plugins` entry in `enabledPlugins` and the
-  `cursor-plugins` entry in `extraKnownMarketplaces` of `.claude/settings.json`.
-  Ask: the user may keep pstack without the rails.
+- pstack itself: the `pstack@prezservices` entry in `enabledPlugins` of
+  `.claude/settings.json`. Ask: the user may keep pstack without the rails.
 - `.claude/rules/pstack-models.md`, when setup's user put one there. Ask.
 
 ## 3. Remove and land

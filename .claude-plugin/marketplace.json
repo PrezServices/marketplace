@@ -6,9 +6,6 @@
   "metadata": {
     "description": "PrezServices' Claude Code plugins, grouped by category."
   },
-  "allowCrossMarketplaceDependenciesOn": [
-    "cursor-plugins"
-  ],
   "plugins": [
     {
       "name": "prez-rails",
@@ -21,6 +18,16 @@
       "source": "./autonomous-delivery/pstack-rails",
       "category": "autonomous-delivery",
       "description": "pstack rails: runs a workspace on pstack (Cursor's pstack@cursor-plugins). Points every session at /pstack:poteto-mode, keeps subagents to pstack's agents, and ports the cursor-team-kit skills pstack names."
+    },
+    {
+      "name": "pstack",
+      "source": {
+        "source": "git-subdir",
+        "url": "https://github.com/cursor/plugins.git",
+        "path": "harness/pstack/claude-code"
+      },
+      "category": "autonomous-delivery",
+      "description": "pstack, Lauren Tan's agent workflows, fetched from Cursor's repo (cursor/plugins, harness/pstack/claude-code), not copied. Listed here so pstack-rails can install it as a dependency; install pstack-rails rather than this."
     }
   ]
 }

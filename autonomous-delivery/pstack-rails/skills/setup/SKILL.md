@@ -27,15 +27,20 @@ something `/pstack-rails:teardown` knows how to remove; keep it that way.
 
 ## 2. pstack itself
 
-pstack is Cursor's plugin, `pstack@cursor-plugins`. pstack rails declares it
-as a dependency, so installing pstack rails installs it, once the
-`cursor-plugins` marketplace is added. pstack rails only loads with pstack
-present, so a session running this skill already has it.
+pstack is Cursor's plugin. pstack rails depends on it as `pstack@prezservices`,
+which this marketplace fetches from Cursor's repo, so installing pstack rails
+installs it. pstack rails only loads with pstack present, so a session
+running this skill already has it.
 
-- Check that `.claude/settings.json` lists `cursor-plugins` under
-  `extraKnownMarketplaces` and enables `pstack@cursor-plugins`, so teammates
-  get both when they open the workspace. When either is missing, show the
-  change and make it on the user's yes.
+- Check that `.claude/settings.json` lists `prezservices` under
+  `extraKnownMarketplaces` and enables `pstack-rails@prezservices` and
+  `pstack@prezservices`, so teammates get them when they open the workspace.
+  When one is missing, show the change and make it on the user's yes.
+- A workspace set up before pstack moved into this marketplace also enables
+  `pstack@cursor-plugins`, which loads a second copy of pstack under the same
+  names. Show it and, on the user's yes, run
+  `claude plugin uninstall pstack@cursor-plugins --scope project` and remove
+  the `cursor-plugins` entry from `extraKnownMarketplaces`.
 - **pstack's own setup runs here.** When `~/.claude/rules/pstack-models.md`
   doesn't exist, or the user wants to change it, run `pstack:setup-pstack`
   now, as part of this setup: it picks the model and budget for each pstack

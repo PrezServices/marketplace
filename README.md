@@ -19,6 +19,7 @@ own git credentials (`gh auth login` is enough).
 | --- | --- | --- |
 | [`prez-rails`](autonomous-delivery/prez-rails/) | autonomous-delivery | An autonomous delivery system for meta-repos |
 | [`pstack-rails`](autonomous-delivery/pstack-rails/) | autonomous-delivery | Runs a workspace on pstack, with its entry point and agent guards |
+| `pstack` | autonomous-delivery | A pointer to Cursor's pstack (`cursor/plugins`, `harness/pstack/claude-code`), so pstack-rails can install it as a dependency |
 
 The catalog is `.claude-plugin/marketplace.json`. Plugins are grouped by
 category, one folder per category.
