@@ -26,19 +26,15 @@ something `/pstack-rails:teardown` knows how to remove; keep it that way.
 
 ## 2. pstack itself
 
-pstack is Cursor's plugin, `pstack@cursor-plugins`; pstack rails points the
-workspace at it and doesn't copy it.
+pstack is Cursor's plugin, `pstack@cursor-plugins`. pstack rails declares it
+as a dependency, so installing pstack rails installs it, once the
+`cursor-plugins` marketplace is added. pstack rails only loads with pstack
+present, so a session running this skill already has it.
 
-- When no `~/.claude/plugins/cache/*/pstack/<version>/skills/poteto-mode/SKILL.md`
-  exists, or `.claude/settings.json` doesn't enable `pstack@cursor-plugins`,
-  show these and run them on the user's yes:
-
-  ```sh
-  claude plugin marketplace add cursor/plugins --scope project
-  claude plugin install pstack@cursor-plugins --scope project
-  ```
-
-  pstack loads from the next session, so finish setup now and say so.
+- Check that `.claude/settings.json` lists `cursor-plugins` under
+  `extraKnownMarketplaces` and enables `pstack@cursor-plugins`, so teammates
+  get both when they open the workspace. When either is missing, show the
+  change and make it on the user's yes.
 - When `~/.claude/rules/pstack-models.md` doesn't exist, tell the user to run
   `/pstack:setup-pstack` in the next session: it picks the models and budget
   for each pstack role, per user. A project that needs its own choices puts

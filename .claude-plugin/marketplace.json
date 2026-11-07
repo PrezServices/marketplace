@@ -6,6 +6,9 @@
   "metadata": {
     "description": "PrezServices' Claude Code plugins, grouped by category."
   },
+  "allowCrossMarketplaceDependenciesOn": [
+    "cursor-plugins"
+  ],
   "plugins": [
     {
       "name": "prez-brief",
