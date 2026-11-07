@@ -24,8 +24,8 @@ try:
 except ValueError:
     pass
 
-# pstack rails declares pstack as a dependency, so adding Cursor's marketplace installs it.
-INSTALL = "claude plugin marketplace add cursor/plugins --scope project"
+# pstack rails depends on pstack@prezservices; re-running the install restores a missing dependency.
+INSTALL = "claude plugin install pstack-rails@prezservices --scope project"
 
 
 TRACKERS = ("linear", "jira", "github-issues")

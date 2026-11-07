@@ -1,8 +1,8 @@
 # pstack rails
 
 Runs a workspace on [pstack](https://github.com/cursor/plugins/tree/main/pstack),
-Lauren Tan's rigorous agent workflows, published by Cursor as
-`pstack@cursor-plugins` with its own Claude Code adapter. pstack decides how
+Lauren Tan's rigorous agent workflows, published by Cursor with its own
+Claude Code adapter. pstack decides how
 the work is done: `/pstack:poteto-mode` reads each request and picks its
 playbook and skills. pstack rails adds what a workspace needs around it:
 
@@ -38,18 +38,13 @@ That repo's merge gate and mise tasks stay there.
 In the workspace:
 
 ```sh
-claude plugin marketplace add cursor/plugins --scope project
 claude plugin marketplace add PrezServices/marketplace --scope project
 claude plugin install pstack-rails@prezservices --scope project
 ```
 
-pstack is a declared dependency (`pstack@cursor-plugins`), so the install
-brings it along. Claude Code installs a dependency only from a marketplace
-that's already added, so `cursor/plugins` comes first. Without it, pstack
-rails installs but doesn't load, and the install prints a warning naming
-pstack. Adding `cursor/plugins` afterwards installs pstack then.
-`marketplace.json` allows pstack rails to depend on `cursor-plugins`
-(`allowCrossMarketplaceDependenciesOn`).
+The install brings pstack along: pstack rails depends on `pstack`, which this
+marketplace lists as a pointer to Cursor's repo (`cursor/plugins`,
+`harness/pstack/claude-code`), fetched from there and not copied.
 
 Start Claude there and run `/pstack-rails:setup`. It runs pstack's own setup
 (models and budget per role) as one of its steps, so there's one setup, not
