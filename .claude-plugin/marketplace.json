@@ -11,6 +11,12 @@
   ],
   "plugins": [
     {
+      "name": "prez-brief",
+      "source": "./autonomous-delivery/prez-brief",
+      "category": "autonomous-delivery",
+      "description": "prez brief: the product side of autonomous delivery. Shapes work with grilling, research and prototypes, and writes the seven-section ticket in Linear, Jira or GitHub Issues for a delivery system to build."
+    },
+    {
       "name": "prez-rails",
       "source": "./autonomous-delivery/prez-rails",
       "category": "autonomous-delivery",

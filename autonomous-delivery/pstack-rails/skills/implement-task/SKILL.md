@@ -10,7 +10,8 @@ description: >-
 
 # Picking up a ticket
 
-The ticket says what and why; pstack decides how. This skill is the hand-off
+The ticket says what and why; pstack decides how. Tickets follow
+`${CLAUDE_PLUGIN_ROOT}/ticket.md`. This skill is the hand-off
 on either side of pstack's work: it loads the ticket and keeps the tracker
 true, and leaves the planning, building and verifying to `/pstack:poteto-mode`.
 
@@ -41,7 +42,7 @@ links, comments. Stop, with one sentence to the user, when:
 | Status is `done` or `cancelled` | it's closed; name who closed it |
 | Status is `blocked` | what the blocking comment names |
 | Status is `in-progress` and another branch or PR for the key exists | it's already being worked; name the branch or PR, and offer to resume it |
-| **Goals** or **Acceptance criteria** is missing or empty | which one; offer to fill it in with `pstack-rails:create-task`. The other sections may be thin; pstack fills them in |
+| **Goals** or **Acceptance criteria** is missing or empty | which one; offer to fill it in with `prez-brief:create-task` when prez brief is installed, or ask the filer to. The other sections may be thin; pstack fills them in |
 | A task with open sub-tasks | the work is in the sub-tasks; name the first in Slicing order |
 
 Done when the ticket passes every row, or the user chose to resume.
@@ -100,8 +101,9 @@ answer what it asks, and keep the tracker in step with what it does.
 - **A PR opens:** comment the PR links on the ticket and transition to
   `in-review`, unless the tracker's Git automation already did.
 - **pstack changes the design** (Functional requirements or Tech decisions):
-  rewrite those sections in place, by `pstack-rails:create-task`'s rules
-  (current design only; the tracker's history keeps the old text), and
+  rewrite those sections in place, by the writing rules of
+  `${CLAUDE_PLUGIN_ROOT}/ticket.md` (current design only; the tracker's
+  history keeps the old text), and
   comment one line per change with its reason. No need to ask first.
 - **pstack pushes back on the commitment** (a goal, a non-goal or an
   acceptance criterion): comment the objection, its evidence and the

@@ -73,7 +73,7 @@ if configured(root):
              message="pstack-rails: pstack is not installed. Run: " + INSTALL)
     with open(os.path.join(plugin_root, "orders.md")) as orders_file:
         orders = select_tracker_blocks(orders_file.read(), has_tracker(root))
-    emit(context=orders.replace("${PSTACK_ROOT}", pstack))
+    emit(context=orders.replace("${PSTACK_ROOT}", pstack).replace("${PLUGIN_ROOT}", plugin_root))
 
 if os.path.isfile(os.path.join(root, ".gitmodules")):
     emit(message="pstack-rails is installed but this workspace isn't set up yet. Run /pstack-rails:setup to configure it.")

@@ -1,7 +1,7 @@
 # Trackers
 
-The ticket skills (`create-task`, `implement-task`) describe *what* to do
-with a ticket. *How* to do it in a given
+`implement-task` describes *what* to do with a ticket; tickets are written by
+the ideation plugin (prez brief) or by hand, per `../ticket.md`. *How* to do it in a given
 tracker lives in one adapter file here. The workspace picks the adapter in the
 **Tracker** section of `.pstack-rails/config.md`, together with the values only the
 workspace knows: the team or project key, and the real name of each status.
@@ -35,7 +35,7 @@ unmapped is skipped, and the skill says so instead of inventing one.
 
 | Logical status | Meaning | Who moves a ticket there |
 | --- | --- | --- |
-| `backlog` | Filed, not started | `create-task` |
+| `backlog` | Filed, not started | the ideation plugin, or whoever files it |
 | `in-progress` | pstack is working on it | `implement-task` |
 | `in-review` | A PR is open | `implement-task`, or the tracker's Git automation |
 | `done` | Merged | the tracker's Git automation, or a human |

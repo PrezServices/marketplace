@@ -1,6 +1,6 @@
 {
   "name": "pstack-rails",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "pstack rails: runs a workspace on pstack (Cursor's pstack@cursor-plugins). Points every session at /pstack:poteto-mode, keeps subagents to pstack's agents, and ports the cursor-team-kit skills pstack names.",
   "author": {
     "name": "PrezServices"
