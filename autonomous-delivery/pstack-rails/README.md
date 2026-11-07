@@ -50,8 +50,9 @@ pstack. Adding `cursor/plugins` afterwards installs pstack then.
 `marketplace.json` allows pstack rails to depend on `cursor-plugins`
 (`allowCrossMarketplaceDependenciesOn`).
 
-Start Claude there and run `/pstack-rails:setup`. It maps your tracker's
-statuses, writes `.pstack-rails/config.md`, and
+Start Claude there and run `/pstack-rails:setup`. It runs pstack's own setup
+(models and budget per role) as one of its steps, so there's one setup, not
+two. It also maps your tracker's statuses, writes `.pstack-rails/config.md`, and
 opens a PR. From the next session on, start a ticket with "implement <KEY>".
 To have tickets written for you, add [prez brief](../prez-brief/).
 

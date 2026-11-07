@@ -1,9 +1,10 @@
 ---
 name: setup
 description: >-
-  Set up pstack rails in a workspace after installing the plugin: make sure
-  pstack itself is installed and its models chosen, then write the project
-  config (tracker, repos, forge, deploys, standing orders). Use right after `claude
+  Set up pstack rails in a workspace after installing the plugin: check
+  pstack is enabled for the workspace, run pstack's own setup (models and
+  budget), then write the project config (tracker, repos, forge, deploys,
+  standing orders). One setup covers both. Use right after `claude
   plugin install pstack-rails@...`, when the session-start reminder says the
   workspace isn't set up, or to re-run setup after adding a repo.
 disable-model-invocation: true
@@ -35,13 +36,18 @@ present, so a session running this skill already has it.
   `extraKnownMarketplaces` and enables `pstack@cursor-plugins`, so teammates
   get both when they open the workspace. When either is missing, show the
   change and make it on the user's yes.
-- When `~/.claude/rules/pstack-models.md` doesn't exist, tell the user to run
-  `/pstack:setup-pstack` in the next session: it picks the models and budget
-  for each pstack role, per user. A project that needs its own choices puts
-  them in `.claude/rules/pstack-models.md`, which wins inside the workspace.
+- **pstack's own setup runs here.** When `~/.claude/rules/pstack-models.md`
+  doesn't exist, or the user wants to change it, run `pstack:setup-pstack`
+  now, as part of this setup: it picks the model and budget for each pstack
+  role, per user, and writes that file. When the Skill tool refuses it, open
+  `skills/setup-pstack/SKILL.md` under the newest installed pstack
+  (`~/.claude/plugins/cache/*/pstack/<version>/`) and follow it. It applies
+  from the next session. When the file exists, say so and offer to re-run it.
+  A project that needs its own choices puts them in
+  `.claude/rules/pstack-models.md`, which wins inside the workspace.
 
-Done when pstack is enabled in `.claude/settings.json` and the user knows
-whether the models step is left.
+Done when pstack is enabled in `.claude/settings.json` and
+`~/.claude/rules/pstack-models.md` exists.
 
 ## 3. The project config
 
@@ -79,6 +85,7 @@ Ticket worktrees live in `tickets/<branch>/<repo>/`. Add `tickets/` to
 Commit on a branch, staging by path (`.pstack-rails/`, `.claude/settings.json`,
 `.gitignore`),
 and open a PR on the workspace repo. Then tell the user, in three lines: what
-was written, that pstack loads from the next session, and that work starts
+was written, that the rails and the model choices apply from the next
+session, and that work starts
 with "implement <KEY>", or, with no tracker, with `/pstack:poteto-mode`. When
 prez brief isn't installed, mention that it writes the tickets.
