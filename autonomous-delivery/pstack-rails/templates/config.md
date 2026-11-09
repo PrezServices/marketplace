@@ -24,6 +24,7 @@ With `none`, the workspace works without tickets: requests go straight to
 | Logical status | Status in the tracker |
 | --- | --- |
 | `backlog` | |
+| `ready` | |
 | `in-progress` | |
 | `in-review` | |
 | `done` | |
