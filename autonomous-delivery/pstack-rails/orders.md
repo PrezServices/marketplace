@@ -5,7 +5,9 @@ This workspace delivers through **pstack**, installed at `${PSTACK_ROOT}`.
 <!-- with tracker -->
 - Work starts from a ticket. File one with `pstack-rails:create-task`; pick
   one up with "implement <KEY>" (`pstack-rails:implement-task`), which hands
-  it to `/pstack:poteto-mode`. Work with no ticket gets one first.
+  it to `/pstack:poteto-mode`. Work with no ticket gets one first. Curation
+  is the user's call: when a ticket is only an idea, suggest they run
+  `/pstack-rails:curate-task <KEY>`.
 <!-- without tracker -->
 - This workspace has no tracker: start work with `/pstack:poteto-mode`
   directly. Each PR description says what it is for, what changed and how it

@@ -36,6 +36,7 @@ unmapped is skipped, and the skill says so instead of inventing one.
 | Logical status | Meaning | Who moves a ticket there |
 | --- | --- | --- |
 | `backlog` | Filed, not started | `create-task` |
+| `ready` | Curated: pstack designed it and the author has nothing open | `curate-task` |
 | `in-progress` | pstack is working on it | `implement-task` |
 | `in-review` | A PR is open | `implement-task`, or the tracker's Git automation |
 | `done` | Merged | the tracker's Git automation, or a human |
