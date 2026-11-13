@@ -12,7 +12,7 @@ disagree, the config wins. With `none`, the skill stops with one line.
 
 | Adapter | CRM |
 | --- | --- |
-| *none yet* | PRE-13 adds `attio.md`, Attio through the Attio MCP |
+| [`attio.md`](attio.md) | Attio, through the Attio MCP |
 
 ## The vocabulary the skills use
 
