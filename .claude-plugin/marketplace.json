@@ -28,6 +28,12 @@
       },
       "category": "autonomous-delivery",
       "description": "pstack, Lauren Tan's agent workflows, fetched from Cursor's repo (cursor/plugins, harness/pstack/claude-code), not copied. Listed here so pstack-rails can install it as a dependency; install pstack-rails rather than this."
+    },
+    {
+      "name": "company-ops",
+      "source": "./company-ops/company-ops",
+      "category": "company-ops",
+      "description": "company-ops: runs the company, not the code. Standardises the documents a company keeps (roadmaps now; CRM and outreach next) on one workspace config of entities, knowledge base and doc conventions."
     }
   ]
 }
