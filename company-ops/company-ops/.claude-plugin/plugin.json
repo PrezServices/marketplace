@@ -1,0 +1,9 @@
+{
+  "name": "company-ops",
+  "version": "0.1.0",
+  "description": "company-ops: runs the company, not the code. Standardises the documents a company keeps (roadmaps now; CRM and outreach next) on one workspace config of entities, knowledge base and doc conventions.",
+  "author": {
+    "name": "PrezServices"
+  },
+  "license": "UNLICENSED"
+}
