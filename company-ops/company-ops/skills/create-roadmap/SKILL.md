@@ -35,13 +35,15 @@ Two artefacts, one source of truth:
 
 Facts settled in chat go into both the same turn.
 
-**The board's rules.** The Whiteboard type is
-`https://claude.ai/artifact/PLsEyfjXbDUM1iasW7rjLR`. Before the first write
-of a session, read its instructions (Artifact tool, `action: "read"` with
-that `type_url`). They give the element format, the colour limit, the
-spacing and the edit-in-place rules, and they win over anything here that
-contradicts them. Content goes through `ArtifactData` batch writes, never
-through files published to the board.
+**The board's rules.** The Whiteboard type is the entry titled
+"Whiteboard" in the Artifact tool's types listing (`action: "list"`,
+`scope: "types"`). Its `type_url` opens only through the tool, never in a
+browser; a user who follows it sees "not found", so never give it to them.
+Before the first write of a session, read the type's instructions
+(`action: "read"` with that `type_url`). They give the element format, the
+colour limit, the spacing and the edit-in-place rules, and they win over
+anything here that contradicts them. Content goes through `ArtifactData`
+batch writes, never through files published to the board.
 
 ## 1. Find or birth the board
 
@@ -50,7 +52,7 @@ for the topic. One exists: read `board/meta` and every element before any
 write, and never send `type_url` again. Edit in place.
 
 None exists: birth the frame first, before any research. Publish with the
-Whiteboard `type_url`, the title from the config's pattern, and no files.
+Whiteboard type's `type_url`, the title from the config's pattern, and no files.
 Then one batch writes `board/meta` and the frame: the title as `text` size
 title, under it one `text` size large for the takeaway sentence, 10 words at
 most, and the nine containers of the layout below, each titled and empty.
