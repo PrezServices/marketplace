@@ -37,7 +37,7 @@ CASES = [
     ("no-submodule-edits", "Bash", lambda r: {"command": f"git -C {SUB} switch main"}, ".", CONFIGURED, True),
     ("no-submodule-edits", "Bash", lambda r: {"command": f"git -C {SUB} merge --ff-only origin/main"}, ".", CONFIGURED, True),
     ("no-submodule-edits", "Bash", lambda r: {"command": SYNC}, ".", CONFIGURED, False),
-    ("no-submodule-edits", "Bash", lambda r: {"command": f"git pull && {SYNC} {SUB}"}, ".", CONFIGURED, False),
+    ("no-submodule-edits", "Bash", lambda r: {"command": f"git pull --ff-only; {SYNC} {SUB}"}, ".", CONFIGURED, False),
     ("no-submodule-edits", "Bash", lambda r: {"command": "git status"}, SUB, CONFIGURED, False),
     ("no-sweeping-adds", "Bash", lambda r: {"command": "git add -A"}, ".", CONFIGURED, True),
     ("no-sweeping-adds", "Bash", lambda r: {"command": "git add ."}, ".", CONFIGURED, True),
