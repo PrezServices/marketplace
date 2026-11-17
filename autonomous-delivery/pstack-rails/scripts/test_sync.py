@@ -226,6 +226,12 @@ def beta_never_cloned_update_none(where):
     return setup
 
 
+def beta_has_a_git_folder_that_is_no_repo(w):
+    """git skips a .git that is not a repository and acts on the nearest repo above it: the workspace."""
+    beta_never_cloned_update_none(".git/config")(w)
+    os.makedirs(os.path.join(w.folder("beta"), ".git"))
+
+
 def alpha_edited_beta_moved_on(w):
     each_moved_on(w)
     w.edit("alpha")
@@ -317,6 +323,10 @@ CASES = [
         out=lambda w: [w.line("alpha")], err=lambda w: ["beta: not cloned, skipped"],
         folders={"alpha": ("main", tip("alpha")), ".": ("feature", lambda w: w.extra["root"])},
         extra=problems_in_beta_not_cloned),
+    Row("a folder whose .git is not a repository is skipped, and the workspace is left alone",
+        repos=[{"name": "alpha"}, {"name": "beta"}], setup=beta_has_a_git_folder_that_is_no_repo, exit=2,
+        out=lambda w: [w.line("alpha")], err=lambda w: ["beta: not cloned, skipped"],
+        folders={"alpha": ("main", tip("alpha")), ".": ("feature", lambda w: w.extra["root"])}),
     # Hard failures: exit 1 for a name that is not a submodule, git's own code for a git error.
     Row("an unknown name exits 1 before touching anything", repos=[{"name": "alpha"}], setup=unknown_name,
         args=["alpha", "nosuch"], exit=1, err=lambda w: ["error: 'nosuch' is not a submodule of this workspace"],
