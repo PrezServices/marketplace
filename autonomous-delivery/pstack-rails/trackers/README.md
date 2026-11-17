@@ -38,8 +38,8 @@ unmapped is skipped, and the skill says so instead of inventing one.
 | `backlog` | Filed, not started | `create-task` |
 | `ready` | Curated: pstack designed it and the author has nothing open | `curate-task` |
 | `in-progress` | pstack is working on it | `implement-task` |
-| `in-review` | A PR is open | `implement-task`, or the tracker's Git automation |
-| `done` | Merged | the tracker's Git automation, or a human |
+| `in-review` | A PR is open, or merged and not yet proven on the last deploy stage | `implement-task`, or the tracker's Git automation |
+| `done` | Acceptance criteria proven on the last deploy stage | `ship-task`. When the tracker's Git automation moves it on merge, `ship-task` records what is still unproven |
 | `blocked` | Waiting on something outside the ticket | anyone, with a comment naming what |
 | `cancelled` | Not doing it | a human |
 

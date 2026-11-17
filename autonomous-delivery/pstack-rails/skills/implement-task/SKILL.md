@@ -1,11 +1,13 @@
 ---
 name: implement-task
 description: >-
-  Pick up a filed ticket and hand it to pstack: read it from the tracker,
-  check it has goals and acceptance criteria, move it to in progress, run
-  /pstack:poteto-mode with the ticket as the request, write pstack's design
-  changes back into it, then link the PRs and move it to in review. Use when someone says "implement <KEY>", "pick up
-  this ticket" or "build this task", or pastes a ticket key and expects code.
+  Pick up a filed ticket and own it until it is verified in production: read
+  it from the tracker, check it has goals and acceptance criteria, move it to
+  in progress, run /pstack:poteto-mode with the ticket as the request, write
+  pstack's design changes back into it, link the PRs, then land, deploy and
+  QA the change through `pstack-rails:ship-task`. Use when someone says
+  "implement <KEY>", "pick up this ticket" or "build this task", or pastes a
+  ticket key and expects code.
 ---
 
 # Picking up a ticket
@@ -13,6 +15,12 @@ description: >-
 The ticket says what and why; pstack decides how. This skill is the hand-off
 on either side of pstack's work: it loads the ticket and keeps the tracker
 true, and leaves the planning, building and verifying to `/pstack:poteto-mode`.
+
+**You own the ticket to the end.** It is done when its acceptance criteria
+are proven on the last stage the repo deploys to, which is production where
+one exists. An open PR is the middle. You merge, deploy, QA each stage and
+fix what QA finds, without being asked, and stop only where
+`pstack-rails:ship-task` says a person is needed.
 
 **What's fixed and what's open.** Goals, Non-goals and Acceptance criteria are
 the commitment, and only the human changes them. Functional requirements and
@@ -87,13 +95,35 @@ Implement <KEY>: <title>. The ticket below is the request.
 - Each PR description opens with what the PR is for and links <KEY>
   (<link form from the adapter>), then says what changed and how it was
   verified.
-- Done means every acceptance criterion is proven.
+- Be fully autonomous. Done means every acceptance criterion is proven on
+  the last stage this repo deploys to, not that a PR is open. After the PRs
+  open, go on through pstack-rails:ship-task: green, an independent verdict,
+  merge, deploy and QA on each stage, and a fix for whatever QA finds. Pause
+  only where that skill says a person is needed.
+- Verify before the PR, on the real surface:
+  - Run the repo's gates, then drive the change the way a user would with
+    the repo's verify skill (.claude/skills/verify-*). A repo with none gets
+    one first: follow <pstack>/skills/create-verification-skill/SKILL.md.
+  - When the change touches files a formal check covers
+    (.claude/skills/verify-formal*, a formal/ folder, a coverage record), run
+    that check and read a TLA+ result with pstack's statechart skill.
+  - When the change adds or changes a state machine, concurrent writers,
+    retries, idempotency, a parser, or money or permission logic that no
+    check covers, write the check as part of this ticket: follow
+    <pstack>/skills/create-formal-verification-skill/SKILL.md. It picks the
+    tool from the question: a model checker such as TLA+ for the order of
+    events, a proof or a verifier that runs on the code (Lean, Kani, Verus)
+    for every input, and generated-input tests where no verifier runs on the
+    language.
+  - A counterexample is a finding. Fix the code, never weaken the property.
+  - Say in the PR what each check covers and what it leaves out.
 
 <the ticket's full description>
 ```
 
-pstack chooses its playbook and skills from there. Stay out of its way:
-answer what it asks, and keep the tracker in step with what it does.
+Replace `<pstack>` with the pstack path the session orders give. pstack
+chooses its playbook and skills from there. Stay out of its way: answer what
+it asks, and keep the tracker in step with what it does.
 
 ## 4. Keep the tracker true
 
@@ -111,9 +141,18 @@ answer what it asks, and keep the tracker in step with what it does.
 - **pstack stops on something outside the ticket** (access, another team's
   change): comment what it is and who can answer, and transition to
   `blocked`.
-- **Merged:** the tracker's Git automation moves it to `done`. When the
-  workspace has none, tell the user to move it, and why. Then remove the
-  worktrees (`git -C <repo> worktree remove ../tickets/<branch>/<repo>`, after
-  checking `git status` there is clean) and the empty `tickets/<branch>/`.
+- **Merged:** a merge is not done. When the tracker's Git automation moves
+  the ticket to `done` on merge, leave it there and say in the QA comment
+  what is still unproven. `ship-task` sets the status the evidence supports.
 
 Done when every PR is linked on the ticket and its status matches the PRs.
+
+## 5. Ship it
+
+Run `pstack-rails:ship-task <KEY>` as soon as the PRs are open. Do not end
+the turn on a PR link. That skill gets the PRs green, verifies and merges
+them, deploys and QAs each stage, fixes what QA finds, and removes the
+worktrees.
+
+Done when `ship-task` is done: the last stage's QA comment says PASS and the
+ticket is `done`.

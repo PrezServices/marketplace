@@ -189,11 +189,13 @@ for line, ticketed in [("- **Adapter:** `linear` (team FRO)", True), ("- **Adapt
     text = orders_for(line)
     if ("create-task" in text) != ticketed or ("no tracker" in text) == ticketed or "<!--" in text:
         failures.append(f"session-start orders for {line or 'no adapter line'!r}: expected tickets={ticketed}: {text[:300]}")
+    if text.count("pstack-rails:ship-task") != 1 or "production" not in text:
+        failures.append(f"session-start orders for {line or 'no adapter line'!r}: expected one line on owning the change to production: {text[:300]}")
 
 
 for failure in failures:
     print("FAIL", failure)
-total = len(AGENT_CASES) + 2 + len(WORKFLOW_CASES) + 6 + 3 + 4 + 5
+total = len(AGENT_CASES) + 2 + len(WORKFLOW_CASES) + 6 + 3 + 4 + 5 + 5
 print(f"orders: {len(context)}/{LIMIT} characters")
 print(f"{total - len(failures)}/{total} passed")
 sys.exit(1 if failures else 0)

@@ -37,11 +37,26 @@ A status left blank is skipped by the skills, which say so.
 
 - **Forge:** `<GitHub (gh) | other>`
 
-## Deploys
+## Delivery
 
-- **Go:** `<session | user>`. `session`: the session triggers deploys that need
-  a trigger. `user`: the session prepares them and waits for an explicit go.
-  Merging a PR is always a human's call.
+A ticket is done when its acceptance criteria are proven on the last stage
+below. `pstack-rails:ship-task` reads this section.
+
+- **Merge:** `<session | user>`. `session`: the session merges a PR once it
+  is green and an agent that did not write it has verified it. `user`: the
+  session gets the PR merge-ready and waits for the merge.
+- **Deploy:** `<session | user>`. `session`: the session triggers deploys that
+  need a trigger. `user`: the session prepares them and waits for an explicit
+  go.
+- **Always the person's call:** a deploy or a QA step that messages a
+  customer, moves money or deletes data.
+
+One row per repo and stage, lowest stage first. A repo that deploys nowhere
+has one row that says so, and its last stage is the merged PR.
+
+| Repo | Stage | How code reaches it | Where it runs | How to QA it | Never drive |
+| --- | --- | --- | --- | --- | --- |
+| `<repo>` | `<development \| production \| none>` | <on merge to `<branch>`, workflow file; or the dispatch command> | <URL> | <the verify skill, the test identities, what proves the revision> | <flows and identities QA must not touch> |
 
 ## Standing orders
 

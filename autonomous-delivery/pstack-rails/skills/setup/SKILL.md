@@ -3,8 +3,8 @@ name: setup
 description: >-
   Set up pstack rails in a workspace after installing the plugin: check
   pstack is enabled for the workspace, run pstack's own setup (models and
-  budget), then write the project config (tracker, repos, forge, deploys,
-  standing orders). One setup covers both. Use right after `claude
+  budget), then write the project config (tracker, repos, forge, delivery
+  stages, standing orders). One setup covers both. Use right after `claude
   plugin install pstack-rails@...`, when the session-start reminder says the
   workspace isn't set up, or to re-run setup after adding a repo.
 disable-model-invocation: true
@@ -72,7 +72,14 @@ what it can't tell you, one question at a time:
   what exists. A logical status with no real match stays blank; tell the
   user. When the tracker's tools aren't connected, say which to connect and
   wait.
-- **Deploys.** Who triggers: `session` or `user`.
+- **Delivery.** Who merges and who triggers deploys: `session` or `user`,
+  one question each. Then the stage table, read from each repo and not
+  asked: the deploy workflows and their triggers, the environments
+  (`gh api repos/<owner>/<repo>/environments`), the URL in the deploy config,
+  the repo's verify skills (`.claude/skills/verify-*`). Write one row per
+  repo and stage, lowest first. A repo with no deploy gets one row saying
+  so. Ask only for what the repos cannot show: the test identities, and the
+  flows QA must never drive on production.
 - **Standing orders**, if any.
 
 Done when every section is filled or explicitly `none`, and the user has seen
