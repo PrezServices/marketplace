@@ -61,7 +61,7 @@ Done when the ticket passes every row, or the user chose to resume.
   one and puts its folder on its configured branch:
 
   ```sh
-  ${CLAUDE_PLUGIN_ROOT}/scripts/sync <repo>...
+  "${CLAUDE_PLUGIN_ROOT}/scripts/sync" <repo>...
   ```
 
   Go on when it exits 0 or 2, unless it names a repo as `not cloned`: that
@@ -79,7 +79,7 @@ Done when the ticket passes every row, or the user chose to resume.
   ```
 
   `<base>` is the repo's configured branch, which the sync prints:
-  `${CLAUDE_PLUGIN_ROOT}/scripts/sync --branch <repo>`. A repo pstack finds it
+  `"${CLAUDE_PLUGIN_ROOT}/scripts/sync" --branch <repo>`. A repo pstack finds it
   needs later gets its worktree the same way.
 
 ## 3. Plan the verification
