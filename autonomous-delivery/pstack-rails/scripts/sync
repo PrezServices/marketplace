@@ -1,0 +1,85 @@
+#!/usr/bin/env bash
+# Usage: sync [repo...]
+# Puts each submodule folder (all of them by default) on its configured branch, fast-forwarded to origin's
+# latest commit. The branch is submodule.<name>.branch in .gitmodules, main when unset. A folder that is not
+# cloned yet is cloned; a folder that is already cloned is never moved to the commit the workspace records.
+# Run it from the workspace root: the root is the git repo of the current directory, not of this script.
+# Exit: 0 all synced; 2 some skipped (each named on stderr); any other non-zero is a hard failure
+# (unknown repo, clone or fetch error) and stops at that repo.
+set -euo pipefail
+
+root="$(git rev-parse --show-toplevel)"
+
+# The one place a repo's outcome becomes a line, a stream and (through $skipped) the exit status.
+report() {
+  case "$1" in
+    synced)   echo "$repo: $branch at $(git -C "$dir" rev-parse --short HEAD)" ;;
+    dirty)    echo "$repo: has local changes, skipped" >&2 ;;
+    noswitch) echo "$repo: could not switch to $branch, skipped" >&2 ;;
+    diverged) echo "$repo: $branch has diverged from origin/$branch, left as is" >&2 ;;
+  esac
+  [ "$1" = synced ] || skipped=1
+}
+
+# "submodule.<name>.path <path>" lines. Exit 1 from git only means none are configured.
+submodule_paths() {
+  [ -f "$root/.gitmodules" ] || return 0
+  local status=0
+  git -C "$root" config -f .gitmodules --get-regexp '^submodule\..*\.path$' || status=$?
+  [ "$status" -le 1 ] || exit "$status"
+}
+
+# The submodule name for a path; empty when the path is not a submodule.
+name_of() {
+  printf '%s\n' "$paths" | awk -v path="$1" '$2 == path { sub(/^submodule\./, "", $1); sub(/\.path$/, "", $1); print $1; exit }'
+}
+
+paths="$(submodule_paths)"
+
+if [ $# -eq 0 ]; then
+  # shellcheck disable=SC2046
+  set -- $(printf '%s\n' "$paths" | awk '{ print $2 }')
+fi
+
+for repo in "$@"; do
+  if [ -z "$(name_of "${repo%/}")" ]; then
+    echo "error: '$repo' is not a submodule of this workspace" >&2
+    exit 1
+  fi
+done
+
+skipped=0
+for repo in "$@"; do
+  repo="${repo%/}"
+  dir="$root/$repo"
+  branch="$(git -C "$root" config -f .gitmodules --default main --get "submodule.$(name_of "$repo").branch")"
+
+  # git -C on a folder that is not cloned falls through to the workspace repo, so look for the clone itself.
+  if [ ! -e "$dir/.git" ]; then
+    git -C "$root" submodule update --init --quiet "$repo"
+  fi
+  git -C "$dir" fetch --quiet origin
+
+  if [ -n "$(git -C "$dir" status --porcelain)" ]; then
+    report dirty
+    continue
+  fi
+
+  if git -C "$dir" show-ref --verify --quiet "refs/heads/$branch"; then
+    switch=(switch --quiet "$branch")
+  else
+    switch=(switch --quiet --track -c "$branch" "origin/$branch")
+  fi
+  if ! git -C "$dir" "${switch[@]}"; then
+    report noswitch
+    continue
+  fi
+
+  if git -C "$dir" merge --quiet --ff-only "origin/$branch" 2>/dev/null; then
+    report synced
+  else
+    report diverged
+  fi
+done
+
+[ "$skipped" -eq 0 ] || exit 2
