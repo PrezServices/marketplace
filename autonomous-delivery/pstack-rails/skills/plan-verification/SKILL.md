@@ -35,7 +35,9 @@ cannot see in the code or the ticket is a no.
 
 When the code and the ticket disagree, plan against the code and list each
 difference in the plan. When the change is already built, plan against what
-was built and mark each method as run or not yet run.
+was built and mark each method as run or not yet run. A design method still
+applies to built code. It runs after the fact, and a counterexample is a bug
+to fix.
 
 An **actor** is any process that writes the state: a browser tab, a worker,
 a queue consumer, a cron, another service. Two tabs are two actors.
@@ -44,15 +46,15 @@ a queue consumer, a cron, another service. Two tabs are two actors.
 | --- | --- |
 | **Visible behavior** | Anything a user or a caller can observe: a screen, a response, a message, a stored record |
 | **Ordering** | The result depends on the order of events. More than one actor writing the same record, a retry, a queue, a webhook that can arrive twice or late, a lock, a flow that can stop between an outside side effect (a call to another service, a message sent) and the write that records it |
-| **States** | The thing moves between named states and some moves are not allowed: an order, a session, a subscription, a job |
+| **States** | The thing holds one of a few named states, and either some moves between them are not allowed or some action is forbidden while in one of them: an order, a session, a subscription, a job, a stored consent |
 | **Costly logic** | A wrong answer loses money, leaks data or lets someone in: amounts and rounding, permissions, a parser of outside input, crypto, deletion. Data sent to a third party without the user's consent is a leak |
 | **Wide input** | A pure function, written or specified by the ticket, whose inputs vary widely and whose output obeys a rule you can state: a round trip, an order kept, a total conserved, a bound never crossed |
 | **Many UI states** | A screen with many combinations of input, data and viewport: a form, a list with filters, a layout that reflows |
 | **Fixed look** | The change must match a design or an earlier build pixel for pixel |
-| **Unchanged output** | The ticket promises that some output stays identical: a build with a flag off, a response for existing callers, a migration that keeps the data |
+| **Unchanged output** | An acceptance criterion or a functional requirement names an output that must stay identical: a build with a flag off, a response for existing callers, a migration that keeps the data. A scope note such as "no layout change" is not one |
 | **Accessibility criteria** | An acceptance criterion names keyboard use, a screen reader, focus, contrast or motion |
 | **Consumed contract** | An API, an event, a schema or a file format that this repo produces and code outside it reads today or by the end of the ticket. An API this code only calls is not one |
-| **Tests carry the risk** | The code has a Costly logic, Ordering or States trait and its safety rests on tests. Judge this last, after the other methods are chosen, because they may add the tests |
+| **Tests carry the risk** | The code has a Costly logic, Ordering or States trait, and tests guard it: tests that exist, or tests another planned method will add. Judge this last, after the other methods are chosen |
 
 ## 2. Map traits to methods
 
@@ -60,16 +62,16 @@ a queue consumer, a cron, another service. Two tabs are two actors.
 | --- | --- | --- | --- |
 | **Drive the real surface** | Visible behavior. Always | The acceptance criteria hold on the running system | Never |
 | **Model the design (TLA+)** | Ordering, or States with more than one actor | No order of events breaks the rule, within the bounds of the model | One actor, every state change sits in one function a test can walk, and no step can stop after an outside side effect |
-| **Fault injection** | Ordering, where a flow can stop between an outside side effect and the write that records it | The real code recovers when it is stopped at each such point and run again: nothing sent twice, nothing lost | No outside side effect in the flow |
+| **Fault injection** | Ordering, where a flow can stop between an outside side effect and the write that records it | The real code recovers when it is stopped at each such point and run again: nothing sent twice, nothing lost | No outside side effect in the flow, or every write comes before the side effect it guards |
 | **Verify the code** | Costly logic, in a language with a verifier a developer here can install | The rule holds for every input, or every input up to a bound | No verifier runs on the language. Use property tests and say so |
-| **Decision table test** | Costly logic that decides who may do what | Every combination of actor, resource and action gets the answer the ticket states, with none left out | The rule has one input |
-| **Property tests** | Wide input. Costly logic with no verifier, other than a who-may-do-what rule. The rules of a TLA+ model, replayed on the real code | The rule holds on thousands of generated inputs, with a shrunk counterexample when it does not | Glue code with no rule to state |
+| **Decision table test** | Costly logic or States whose answer is fixed by a small table of cases: who may do what, or which action is allowed in which state | Every row of the table gets the answer the ticket states, with none left out | The rule has one input, or its inputs are too many to list |
+| **Property tests** | Wide input. Costly logic with no verifier that a decision table cannot list. The rules of a TLA+ model, replayed on the real code | The rule holds on thousands of generated inputs, with a shrunk counterexample when it does not | Glue code with no rule to state |
 | **Interaction property tests** | Many UI states | No sequence of generated user actions breaks an invariant of the screen | Static content. A screen with one path |
 | **Visual diff** | Fixed look | The pixels match the reference | The ticket changes the look on purpose and names no reference |
 | **Output diff** | Unchanged output | The output is byte for byte what it was, or differs only where the ticket says | Nothing is promised to stay the same |
 | **Accessibility check** | Accessibility criteria | The criterion holds when driven by keyboard and read through the accessibility tree, plus an automated audit | No such criterion |
 | **Contract test** | Consumed contract | Producer and consumer agree on the shape, old and new | No reader outside the repo |
-| **Mutation testing** | Tests carry the risk | The tests fail when the code is broken on purpose | Docs, config, generated code, a change with no logic, a repo with no tests on the changed code |
+| **Mutation testing** | Tests carry the risk | The tests fail when the code is broken on purpose | Docs, config, generated code, a change with no logic, no tests on the changed code even after the plan |
 
 Two orderings are fixed:
 
