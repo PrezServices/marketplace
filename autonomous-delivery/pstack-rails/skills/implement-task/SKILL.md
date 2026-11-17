@@ -3,7 +3,8 @@ name: implement-task
 description: >-
   Pick up a filed ticket and own it until it is verified in production: read
   it from the tracker, check it has goals and acceptance criteria, move it to
-  in progress, run /pstack:poteto-mode with the ticket as the request, write
+  in progress, plan its verification, run /pstack:poteto-mode with the
+  ticket as the request, write
   pstack's design changes back into it, link the PRs, then land, deploy and
   QA the change through `pstack-rails:ship-task`. Use when someone says
   "implement <KEY>", "pick up this ticket" or "build this task", or pastes a
@@ -67,7 +68,18 @@ Done when the ticket passes every row, or the user chose to resume.
 
   A repo pstack finds it needs later gets its worktree the same way.
 
-## 3. Hand it to pstack
+## 3. Plan the verification
+
+Run `pstack-rails:plan-verification <KEY>`. It reads the ticket and the code,
+picks the methods the change needs (driving the real surface, a TLA+ model,
+a code verifier, property tests, mutation testing, contract tests, visual
+diff), and writes the plan into the ticket with a reason for each method it
+skips. A ticket that already has a plan keeps it, checked against the code
+as it is now.
+
+Done when the ticket's Tech decisions hold a Verification plan.
+
+## 4. Hand it to pstack
 
 Run `/pstack:poteto-mode` with this as the request. When the Skill tool
 refuses it, open its `SKILL.md` under the pstack path the session orders give
@@ -94,23 +106,13 @@ Implement <KEY>: <title>. The ticket below is the request.
   open, go on through pstack-rails:ship-task: green, an independent verdict,
   merge, deploy and QA on each stage, and a fix for whatever QA finds. Pause
   only where that skill says a person is needed.
-- Verify before the PR, on the real surface:
-  - Run the repo's gates, then drive the change the way a user would with
-    the repo's verify skill (.claude/skills/verify-*). A repo with none gets
-    one first: follow <pstack>/skills/create-verification-skill/SKILL.md.
-  - When the change touches files a formal check covers
-    (.claude/skills/verify-formal*, a formal/ folder, a coverage record), run
-    that check and read a TLA+ result with pstack's statechart skill.
-  - When the change adds or changes a state machine, concurrent writers,
-    retries, idempotency, a parser, or money or permission logic that no
-    check covers, write the check as part of this ticket: follow
-    <pstack>/skills/create-formal-verification-skill/SKILL.md. It picks the
-    tool from the question: a model checker such as TLA+ for the order of
-    events, a proof or a verifier that runs on the code (Lean, Kani, Verus)
-    for every input, and generated-input tests where no verifier runs on the
-    language.
-  - A counterexample is a finding. Fix the code, never weaken the property.
-  - Say in the PR what each check covers and what it leaves out.
+- Verify by the ticket's Verification plan (in Tech decisions). Run each
+  method it names, in the order it gives: a design method such as a TLA+
+  model before the first line of code, the rest before the PR. A
+  counterexample or a surviving mutant is a finding: fix the code, never
+  weaken the rule. When the work shows a trait the plan missed, add the
+  method and update the plan. The PR's Verification section has one bullet
+  per planned method: what ran, what it found, what it leaves out.
 
 <the ticket's full description>
 ```
@@ -119,7 +121,7 @@ Replace `<pstack>` with the pstack path the session orders give. pstack
 chooses its playbook and skills from there. Stay out of its way: answer what
 it asks, and keep the tracker in step with what it does.
 
-## 4. Keep the tracker true
+## 5. Keep the tracker true
 
 - **A PR opens:** comment the PR links on the ticket and transition to
   `in-review`, unless the tracker's Git automation already did.
@@ -141,7 +143,7 @@ it asks, and keep the tracker in step with what it does.
 
 Done when every PR is linked on the ticket and its status matches the PRs.
 
-## 5. Ship it
+## 6. Ship it
 
 Run `pstack-rails:ship-task <KEY>` once pstack has opened the ticket's last
 PR. Do not end the turn on a PR link. That skill gets the PRs green, verifies and merges

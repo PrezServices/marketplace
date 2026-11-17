@@ -30,10 +30,14 @@ playbook and skills. pstack rails adds what a workspace needs around it:
   and fixes what QA finds under the same ticket. The stages and who merges
   are in the config's **Delivery** section. It pauses for what reaches a
   customer, moves money or deletes data.
-- **Verification is named, not assumed.** The request names the repo's
-  verify skill and its formal check, and tells pstack to create one
-  (`create-verification-skill`, `create-formal-verification-skill`) when a
-  change needs it. No pstack playbook reaches for those skills by itself.
+- **Verification is planned, not assumed.** pstack verifies by driving the
+  real app, and no playbook reaches for its formal verification skills or
+  names mutation or contract tests. `pstack-rails:plan-verification` reads
+  the ticket and the code before any code is written, finds the traits each
+  method is for (ordering, states, costly logic, wide input, a consumed
+  contract), and writes a plan into the ticket: the methods to run, the rule
+  each one checks, and every method skipped with its reason. A TLA+ model of
+  a design runs before the code. The PR reports against the plan.
 - **Curation.** `/pstack-rails:curate-task <KEY>`, run by a person (Claude
   doesn't start it on its own), takes a ticket anyone wrote,
   often someone non-technical, to ready: it keeps the author's goals and
@@ -82,7 +86,7 @@ To remove it, or to switch delivery systems: `/pstack-rails:teardown`, then
 | --- | --- |
 | `orders.md` | What session start injects in a set-up workspace |
 | `hooks/` | Session start; the `Agent` and `Workflow` guards, with `workflow_scan.py`, which reads `agent()` calls without running the script; and the workspace guards (`no-*.py`) |
-| `skills/create-task`, `skills/curate-task`, `skills/implement-task`, `skills/ship-task` | File a ticket; take it to ready with pstack designing the how; pick it up and hand it to pstack; land, deploy and QA it on each stage |
+| `skills/create-task`, `skills/curate-task`, `skills/implement-task`, `skills/plan-verification`, `skills/ship-task` | File a ticket; take it to ready with pstack designing the how; pick it up and hand it to pstack; pick the verification methods the change needs; land, deploy and QA it on each stage |
 | `trackers/` | One adapter per tracker: Linear, Jira, GitHub Issues |
 | `skills/setup`, `skills/teardown` | The contract's two skills |
 | `skills/deslop`, `skills/control-ui`, `skills/control-cli` | Ported from cursor-team-kit; never edited by hand |
