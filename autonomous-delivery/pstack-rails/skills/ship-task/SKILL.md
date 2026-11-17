@@ -58,7 +58,7 @@ These need the person. Anything else is yours.
 | Delivery says `Merge: user` or `Deploy: user` | get to that step, say exactly what is ready, and end the turn. The person's merge or go, or "ship <KEY>", resumes from there |
 | A criterion cannot be driven safely on the last stage | step 5, the not-exercised row |
 | Two fix rounds failed on the same criterion | step 6 |
-| The evidence says a goal or an acceptance criterion is wrong | `implement-task` section 4, the commitment row |
+| The evidence says a goal or an acceptance criterion is wrong | `implement-task`'s Keep the tracker true section, the commitment row |
 | Access you lack and cannot get | comment what and who, transition to `blocked` |
 
 A wait covers that step only. Work that does not depend on the answer goes
