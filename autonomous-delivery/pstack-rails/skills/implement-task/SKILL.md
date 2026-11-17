@@ -56,16 +56,28 @@ Done when the ticket passes every row, or the user chose to resume.
 - Transition to `in-progress`, unless it's there already.
 - The branch name for the key, from the adapter. Every repo covered uses it.
 - A worktree per repo covered, at `tickets/<branch>/<repo>/` from the
-  workspace root. Submodule folders stay clean on `main`, and a guard refuses
-  edits and git writes inside them. For each repo:
+  workspace root. Submodule folders stay clean, and a guard refuses edits and
+  git writes inside them. First sync the repos covered, which fetches each
+  one and puts its folder on its configured branch:
 
   ```sh
-  git -C <repo> fetch origin
-  git -C <repo> worktree add ../tickets/<branch>/<repo> <branch>                     # the branch exists locally
-  git -C <repo> worktree add --track -b <branch> ../tickets/<branch>/<repo> origin/<branch>  # only on origin
-  git -C <repo> worktree add --no-track -b <branch> ../tickets/<branch>/<repo> origin/main   # new
+  ${CLAUDE_PLUGIN_ROOT}/scripts/sync <repo>...
   ```
 
+  Go on when it exits 0 or 2. Exit 2 means a folder was skipped (local
+  changes, a diverged branch, a branch checked out elsewhere) and is named on
+  stderr; the fetch still ran, so `origin/<base>` is current. Stop on any
+  other exit and tell the user what it printed. Then, for each repo:
+
+  ```sh
+  git -C <repo> worktree add ../tickets/<branch>/<repo> <branch>                     # the branch exists locally
+  git -C <repo> worktree add --track -b <branch> ../tickets/<branch>/<repo> origin/<branch>  # only on origin
+  git -C <repo> worktree add --no-track -b <branch> ../tickets/<branch>/<repo> origin/<base>  # new
+  ```
+
+  `<base>` is the repo's configured branch: `submodule.<repo>.branch` in
+  `.gitmodules`, `main` when unset
+  (`git config -f .gitmodules --default main --get submodule.<repo>.branch`).
   A repo pstack finds it needs later gets its worktree the same way.
 
 ## 3. Plan the verification
@@ -97,7 +109,7 @@ Implement <KEY>: <title>. The ticket below is the request.
 - Repos covered: <each repo, with what changes there, or "find out" when the
   ticket doesn't say>. Each is its own repo, checked out on <branch name> at
   tickets/<branch>/<repo>/: work, commit and open the PR there. The folder
-  <repo>/ at the root stays clean on main.
+  <repo>/ at the root stays clean.
 - Each PR description opens with what the PR is for and links <KEY>
   (<link form from the adapter>), then says what changed and how it was
   verified.
