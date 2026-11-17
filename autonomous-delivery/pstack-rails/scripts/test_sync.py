@@ -205,6 +205,27 @@ def beta_unreachable_and_not_cloned(w):
     w.clone_workspace()
 
 
+def beta_never_cloned_update_none(where):
+    """beta is never cloned because `update = none` tells git not to. The workspace is on a branch of its
+    own, clean (`ignore = all`, as setup writes it, hides the moved folders), with origin's main one commit
+    ahead of it: the commit a sync run on the workspace by mistake would switch to and fast-forward."""
+    def setup(w):
+        each_moved_on(w)
+        origin = w.root
+        for name in w.recorded:
+            git("config", "-f", ".gitmodules", f"submodule.{name}.ignore", "all", cwd=w.root)
+        if where == ".gitmodules":
+            git("config", "-f", ".gitmodules", "submodule.beta.update", "none", cwd=w.root)
+        git("commit", "-q", "-am", "workspace settings", cwd=w.root)
+        w.clone_workspace()
+        if where == ".git/config":
+            git("config", "submodule.beta.update", "none", cwd=w.root)
+        commit(origin, "ahead", "x\n")
+        git("switch", "-q", "-c", "feature", cwd=w.root)
+        w.extra["root"] = git("rev-parse", "HEAD", cwd=w.root)
+    return setup
+
+
 def alpha_edited_beta_moved_on(w):
     each_moved_on(w)
     w.edit("alpha")
@@ -234,6 +255,10 @@ def problems_in_tracking(w):
 
 def problems_in_not_cloned(w):
     return ["gamma was cloned after the sync stopped at beta"] if w.cloned("gamma") else []
+
+
+def problems_in_beta_not_cloned(w):
+    return ["beta was cloned"] if w.cloned("beta") else []
 
 
 def problems_named_beta_only(w):
@@ -282,6 +307,16 @@ CASES = [
     Row("only the named repos are synced", repos=[{"name": "alpha"}, {"name": "beta"}], setup=each_moved_on,
         args=["beta"], out=lambda w: [w.line("beta")],
         folders={"alpha": ("main", recorded("alpha")), "beta": ("main", tip("beta"))}, extra=problems_named_beta_only),
+    Row("a folder git is told not to clone is skipped, and the workspace is left alone",
+        repos=[{"name": "alpha"}, {"name": "beta"}], setup=beta_never_cloned_update_none(".git/config"), exit=2,
+        out=lambda w: [w.line("alpha")], err=lambda w: ["beta: not cloned, skipped"],
+        folders={"alpha": ("main", tip("alpha")), ".": ("feature", lambda w: w.extra["root"])},
+        extra=problems_in_beta_not_cloned),
+    Row("the same when .gitmodules says update = none",
+        repos=[{"name": "alpha"}, {"name": "beta"}], setup=beta_never_cloned_update_none(".gitmodules"), exit=2,
+        out=lambda w: [w.line("alpha")], err=lambda w: ["beta: not cloned, skipped"],
+        folders={"alpha": ("main", tip("alpha")), ".": ("feature", lambda w: w.extra["root"])},
+        extra=problems_in_beta_not_cloned),
     # Hard failures: exit 1 for a name that is not a submodule, git's own code for a git error.
     Row("an unknown name exits 1 before touching anything", repos=[{"name": "alpha"}], setup=unknown_name,
         args=["alpha", "nosuch"], exit=1, err=lambda w: ["error: 'nosuch' is not a submodule of this workspace"],
