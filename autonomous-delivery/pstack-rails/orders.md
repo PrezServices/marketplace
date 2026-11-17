@@ -31,9 +31,10 @@ This workspace delivers through **pstack**, installed at `${PSTACK_ROOT}`.
   that commit is never bumped. Each folder sits on its branch (`submodule.<name>.branch`
   in `.gitmodules`, `main` when unset) at origin's latest commit. At session
   start, and before you read a submodule folder to answer a question about
-  current code, run `git pull && ${RAILS_ROOT}/scripts/sync` from the workspace
-  root. Exit 2 names the folders it skipped and does not block work. Any other
-  non-zero exit is an error: say so.
+  current code, run `git pull --ff-only; ${RAILS_ROOT}/scripts/sync` from the
+  workspace root. A failed pull is reported and does not stop the sync. Exit 2
+  names the folders it skipped and does not block work. Any other non-zero exit
+  is an error: say so.
 <!-- with tracker -->
 - Submodule folders stay clean. Each ticket works in
   `tickets/<branch>/<repo>/` worktrees, which `implement-task` creates.
