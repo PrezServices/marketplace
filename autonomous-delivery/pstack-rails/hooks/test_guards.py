@@ -9,6 +9,7 @@ import json, os, subprocess, sys, tempfile
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 SUB = "server"
+SYNC = os.path.join(os.path.dirname(HERE), "scripts", "sync")
 
 
 def workspace(configured):
@@ -33,6 +34,10 @@ CASES = [
     ("no-submodule-edits", "Bash", lambda r: {"command": "git commit -m x"}, SUB, CONFIGURED, True),
     ("no-submodule-edits", "Bash", lambda r: {"command": f"git -C {SUB} push"}, ".", CONFIGURED, True),
     ("no-submodule-edits", "Bash", lambda r: {"command": f"cd {SUB} && git add x"}, ".", CONFIGURED, True),
+    ("no-submodule-edits", "Bash", lambda r: {"command": f"git -C {SUB} switch main"}, ".", CONFIGURED, True),
+    ("no-submodule-edits", "Bash", lambda r: {"command": f"git -C {SUB} merge --ff-only origin/main"}, ".", CONFIGURED, True),
+    ("no-submodule-edits", "Bash", lambda r: {"command": SYNC}, ".", CONFIGURED, False),
+    ("no-submodule-edits", "Bash", lambda r: {"command": f"git pull && {SYNC} {SUB}"}, ".", CONFIGURED, False),
     ("no-submodule-edits", "Bash", lambda r: {"command": "git status"}, SUB, CONFIGURED, False),
     ("no-sweeping-adds", "Bash", lambda r: {"command": "git add -A"}, ".", CONFIGURED, True),
     ("no-sweeping-adds", "Bash", lambda r: {"command": "git add ."}, ".", CONFIGURED, True),

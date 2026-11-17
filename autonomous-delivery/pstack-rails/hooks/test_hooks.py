@@ -191,11 +191,15 @@ for line, ticketed in [("- **Adapter:** `linear` (team FRO)", True), ("- **Adapt
         failures.append(f"session-start orders for {line or 'no adapter line'!r}: expected tickets={ticketed}: {text[:300]}")
     if text.count("pstack-rails:ship-task") != 1 or "production" not in text:
         failures.append(f"session-start orders for {line or 'no adapter line'!r}: expected one line on owning the change to production: {text[:300]}")
+    if f"git pull && {PLUGIN}/scripts/sync" not in text or "${RAILS_ROOT}" in text:
+        failures.append(f"session-start orders for {line or 'no adapter line'!r}: expected the sync order with the plugin's path and no placeholder left: {text[:300]}")
+    if "origin/main" in text:
+        failures.append(f"session-start orders for {line or 'no adapter line'!r}: a worktree must start from the repo's configured branch, not origin/main: {text[:300]}")
 
 
 for failure in failures:
     print("FAIL", failure)
-total = len(AGENT_CASES) + 2 + len(WORKFLOW_CASES) + 6 + 3 + 4 + 5 + 5
+total = len(AGENT_CASES) + 2 + len(WORKFLOW_CASES) + 6 + 3 + 4 + 5 * 4
 print(f"orders: {len(context)}/{LIMIT} characters")
 print(f"{total - len(failures)}/{total} passed")
 sys.exit(1 if failures else 0)
