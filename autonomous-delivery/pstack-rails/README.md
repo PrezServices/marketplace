@@ -51,8 +51,9 @@ playbook and skills. pstack rails adds what a workspace needs around it:
   code and not the commit the workspace records. That commit is a snapshot and
   is never bumped. The orders have a session run it at start and before it
   reads a submodule folder, and `implement-task` runs it before it adds a
-  ticket worktree. It skips a folder with local changes, a diverged branch or
-  a branch checked out elsewhere (exit 2), and clones one that is missing.
+  ticket worktree. It skips a folder with local changes, a diverged branch, a
+  branch checked out elsewhere or a clone git was told not to make (exit 2),
+  and clones one that is missing.
   Setup adds `ignore = all` to each submodule so `git status` stays quiet.
 - **Workspace guards**, the same as prez rails': submodule folders stay clean
   (work happens in `tickets/<branch>/<repo>/` worktrees), no sweeping

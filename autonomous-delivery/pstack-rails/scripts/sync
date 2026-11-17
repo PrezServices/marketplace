@@ -5,7 +5,9 @@
 # cloned yet is cloned; a folder that is already cloned is never moved to the commit the workspace records.
 # Run it from the workspace root: the root is the git repo of the current directory, not of this script.
 # Exit: 0 all synced; 2 some skipped (each named on stderr); any other non-zero is a hard failure
-# (unknown repo, clone or fetch error) and stops at that repo.
+# (unknown repo, clone or fetch error) and stops at that repo. A skip is a folder git would not clone
+# (update = none), one with local changes, one that would not switch to its branch, or one whose branch
+# has diverged from origin's. Skips are listed in report below.
 set -euo pipefail
 
 root="$(git rev-parse --show-toplevel)"
@@ -13,10 +15,11 @@ root="$(git rev-parse --show-toplevel)"
 # The one place a repo's outcome becomes a line, a stream and (through $skipped) the exit status.
 report() {
   case "$1" in
-    synced)   echo "$repo: $branch at $(git -C "$dir" rev-parse --short HEAD)" ;;
-    dirty)    echo "$repo: has local changes, skipped" >&2 ;;
-    noswitch) echo "$repo: could not switch to $branch, skipped" >&2 ;;
-    diverged) echo "$repo: $branch has diverged from origin/$branch, left as is" >&2 ;;
+    synced)    echo "$repo: $branch at $(git -C "$dir" rev-parse --short HEAD)" ;;
+    notcloned) echo "$repo: not cloned, skipped" >&2 ;;
+    dirty)     echo "$repo: has local changes, skipped" >&2 ;;
+    noswitch)  echo "$repo: could not switch to $branch, skipped" >&2 ;;
+    diverged)  echo "$repo: $branch has diverged from origin/$branch, left as is" >&2 ;;
   esac
   [ "$1" = synced ] || skipped=1
 }
@@ -32,6 +35,13 @@ submodule_paths() {
 # The submodule name for a path; empty when the path is not a submodule.
 name_of() {
   printf '%s\n' "$paths" | awk -v path="$1" '$2 == path { sub(/^submodule\./, "", $1); sub(/\.path$/, "", $1); print $1; exit }'
+}
+
+# True when $dir is a repo of its own. A folder git left empty (update = none) is not one, and git -C on
+# it acts on the workspace repo, so no git call touches a folder before this holds.
+own_repo() {
+  local top
+  top="$(git -C "$dir" rev-parse --show-toplevel 2>/dev/null)" && [ "$top" = "$(cd "$dir" && pwd -P)" ]
 }
 
 paths="$(submodule_paths)"
@@ -54,9 +64,13 @@ for repo in "$@"; do
   dir="$root/$repo"
   branch="$(git -C "$root" config -f .gitmodules --default main --get "submodule.$(name_of "$repo").branch")"
 
-  # git -C on a folder that is not cloned falls through to the workspace repo, so look for the clone itself.
+  # Only a folder with no .git is cloned: an unusable .git is a skip below, never something to clone over.
   if [ ! -e "$dir/.git" ]; then
     git -C "$root" submodule update --init --quiet "$repo"
+  fi
+  if ! own_repo; then
+    report notcloned
+    continue
   fi
   git -C "$dir" fetch --quiet origin
 
