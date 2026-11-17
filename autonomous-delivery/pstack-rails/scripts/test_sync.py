@@ -144,6 +144,27 @@ def moved_on_detached(w):
     w.detach("alpha")
 
 
+def detached_with_a_commit_on_no_branch(w):
+    moved_on_detached(w)
+    w.extra["local"] = commit(w.folder("alpha"), "local", "mine\n")
+
+
+def detached_on_a_remote_branch_only(w):
+    w.advance("alpha")
+    folder = w.folder("alpha")
+    git("fetch", "-q", "origin", cwd=folder)
+    git("switch", "-q", "--detach", "origin/main", cwd=folder)
+    git("branch", "-q", "-D", "main", cwd=folder)
+
+
+def detached_on_a_local_branch_only(w):
+    w.advance("alpha")
+    folder = w.folder("alpha")
+    git("switch", "-q", "-c", "wip", cwd=folder)
+    commit(folder, "wip", "mine\n")
+    git("switch", "-q", "--detach", cwd=folder)
+
+
 def never_cloned(w):
     w.advance("alpha")
     w.clone_workspace()
@@ -279,6 +300,12 @@ CASES = [
         out=lambda w: [w.line("alpha")], folders={"alpha": ("main", tip("alpha"))}),
     Row("detached and clean ends on the branch at origin's tip", repos=[{"name": "alpha"}], setup=moved_on_detached,
         out=lambda w: [w.line("alpha")], folders={"alpha": ("main", tip("alpha"))}),
+    Row("detached on a commit only a remote-tracking branch holds still syncs", repos=[{"name": "alpha"}],
+        setup=detached_on_a_remote_branch_only, out=lambda w: [w.line("alpha")],
+        folders={"alpha": ("main", tip("alpha"))}),
+    Row("detached on a commit only a local branch holds still syncs", repos=[{"name": "alpha"}],
+        setup=detached_on_a_local_branch_only, out=lambda w: [w.line("alpha")],
+        folders={"alpha": ("main", tip("alpha"))}),
     Row("never cloned gets cloned and synced", repos=[{"name": "alpha"}], setup=never_cloned,
         out=lambda w: [w.line("alpha")], folders={"alpha": ("main", tip("alpha"))}),
     Row("a configured branch other than main", repos=[{"name": "alpha", "branch": "development"}],
@@ -297,6 +324,9 @@ CASES = [
     Row("local changes are skipped and left alone", repos=[{"name": "alpha"}], setup=local_change, exit=2,
         err=lambda w: ["alpha: has local changes, skipped"], folders={"alpha": ("main", recorded("alpha"))},
         extra=problems_in_local_change),
+    Row("a detached HEAD holding commits on no branch is skipped and left alone", repos=[{"name": "alpha"}],
+        setup=detached_with_a_commit_on_no_branch, exit=2,
+        err=lambda w: ["alpha: has commits on no branch, skipped"], folders={"alpha": (None, lambda w: w.extra["local"])}),
     Row("an initialised folder ahead of the recorded commit is not moved back to it", repos=[{"name": "alpha"}],
         setup=local_change_ahead_of_recorded, exit=2, err=lambda w: ["alpha: has local changes, skipped"],
         folders={"alpha": ("main", tip("alpha"))}),
