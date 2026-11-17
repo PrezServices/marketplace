@@ -25,6 +25,9 @@ stay, and so does the `tickets/` line in `.gitignore`.
 One list, before touching anything:
 
 - The `tickets/` line in `.gitignore`, unless worktrees were kept.
+- The `ignore = all` lines setup added to `.gitmodules`. Ask: the workspace
+  may want to keep moved submodule folders out of `git status` without the
+  rails.
 - `.pstack-rails/`, the whole folder. Offer to keep the repos table and
   standing orders somewhere neutral first when the next delivery system could
   use them.

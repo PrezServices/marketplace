@@ -27,13 +27,23 @@ This workspace delivers through **pstack**, installed at `${PSTACK_ROOT}`.
   other type, in the `Agent` tool and in `Workflow` scripts alike.
 - When pstack names a skill from `cursor-team-kit` (`/deslop`, `control-ui`,
   `control-cli`), it is `/pstack-rails:<name>` here.
+- Submodule folders follow origin, not the commit this workspace records, and
+  that commit is never bumped. Each folder sits on its branch (`submodule.<name>.branch`
+  in `.gitmodules`, `main` when unset) at origin's latest commit. At session
+  start, and before you read a submodule folder to answer a question about
+  current code, run `git pull --ff-only; "${RAILS_ROOT}/scripts/sync"` from the
+  workspace root. A failed pull is reported and does not stop the sync. Exit 2
+  names the folders it skipped and does not block work. Any other non-zero exit
+  is an error: say so.
 <!-- with tracker -->
-- Submodule folders stay clean on `main`. Each ticket works in
+- Submodule folders stay clean. Each ticket works in
   `tickets/<branch>/<repo>/` worktrees, which `implement-task` creates.
 <!-- without tracker -->
-- Submodule folders, when there are any, stay clean on `main`. A change works
-  in `tickets/<branch>/<repo>/` worktrees
-  (`git -C <repo> worktree add ../tickets/<branch>/<repo> -b <branch> origin/main`).
+- Submodule folders, when there are any, stay clean. A change works in
+  `tickets/<branch>/<repo>/` worktrees. Run `"${RAILS_ROOT}/scripts/sync" <repo>`
+  (stop if it says `not cloned`), then
+  `git -C <repo> worktree add ../tickets/<branch>/<repo> -b <branch> origin/<base>`,
+  with `<base>` printed by `"${RAILS_ROOT}/scripts/sync" --branch <repo>`.
 <!-- end -->
 - Stage by path at the root. Guards refuse edits and git writes in a
   submodule folder, sweeping adds at the root, force pushes and pushes to

@@ -90,10 +90,17 @@ the file.
 Ticket worktrees live in `tickets/<branch>/<repo>/`. Add `tickets/` to
 `.gitignore`, showing the change first.
 
+`scripts/sync` keeps each submodule folder at origin's latest commit, and
+`git status` in the workspace repo would report every move as a change. Add
+`ignore = all` to each submodule in `.gitmodules` that has no `ignore`
+setting, showing the change first
+(`git config -f .gitmodules submodule.<name>.ignore all`). git reads the
+setting from `.gitmodules`, so nothing else is needed for it to apply.
+
 ## 5. Land it
 
 Commit on a branch, staging by path (`.pstack-rails/`, `.claude/settings.json`,
-`.gitignore`),
+`.gitignore`, `.gitmodules`),
 and open a PR on the workspace repo. Then tell the user, in three lines: what
 was written, that the rails and the model choices apply from the next
 session, and that work starts with `/pstack-rails:create-task` or
