@@ -258,6 +258,17 @@ def alpha_edited_beta_moved_on(w):
     w.edit("alpha")
 
 
+def gamma_development_moved_on(w):
+    w.extra["development"] = w.tip("gamma-lib", "development")
+    w.advance("gamma-lib", "development")
+
+
+def problems_in_branch_only(w):
+    if git("rev-parse", "origin/development", cwd=w.folder("libs/gamma")) != w.extra["development"]:
+        return ["--branch fetched"]
+    return []
+
+
 def problems_in_local_change(w):
     folder = w.folder("alpha")
     found = []
@@ -320,6 +331,12 @@ CASES = [
         out=lambda w: [w.line("alpha-lib", "development", path="libs/alpha")],
         folders={"libs/alpha": ("development", tip("alpha-lib", "development"))}),
     Row("a workspace with no submodules has nothing to sync"),
+    Row("--branch prints the configured branch of a submodule whose name differs from its path, and syncs nothing",
+        repos=[{"name": "gamma-lib", "path": "libs/gamma", "branch": "development"}], setup=gamma_development_moved_on,
+        args=["--branch", "libs/gamma"], out=lambda w: ["development"],
+        folders={"libs/gamma": ("main", recorded("libs/gamma"))}, extra=problems_in_branch_only),
+    Row("--branch prints main when no branch is configured, for a name written with a trailing slash",
+        repos=[{"name": "alpha"}], args=["--branch", "alpha/"], out=lambda w: ["main"]),
     # Skipped: exit 2, the line on stderr.
     Row("local changes are skipped and left alone", repos=[{"name": "alpha"}], setup=local_change, exit=2,
         err=lambda w: ["alpha: has local changes, skipped"], folders={"alpha": ("main", recorded("alpha"))},
@@ -361,6 +378,10 @@ CASES = [
     Row("an unknown name exits 1 before touching anything", repos=[{"name": "alpha"}], setup=unknown_name,
         args=["alpha", "nosuch"], exit=1, err=lambda w: ["error: 'nosuch' is not a submodule of this workspace"],
         folders={"alpha": (None, recorded("alpha"))}, extra=problems_in_unknown_name),
+    Row("--branch of an unknown name exits 1", repos=[{"name": "alpha"}], args=["--branch", "nosuch"], exit=1,
+        err=lambda w: ["error: 'nosuch' is not a submodule of this workspace"]),
+    Row("--branch takes exactly one repo", repos=[{"name": "alpha"}, {"name": "beta"}],
+        args=["--branch", "alpha", "beta"], exit=1, err=lambda w: ["usage: sync --branch <repo>"]),
     Row("an unreachable origin is a hard failure that stops at that repo",
         repos=[{"name": "alpha"}, {"name": "beta"}, {"name": "gamma"}], setup=beta_unreachable,
         exit=lambda code, w: code == w.extra["fetch"].returncode and code not in (0, 2),
