@@ -16,12 +16,6 @@ The ticket says what and why; pstack decides how. This skill is the hand-off
 on either side of pstack's work: it loads the ticket and keeps the tracker
 true, and leaves the planning, building and verifying to `/pstack:poteto-mode`.
 
-**You own the ticket to the end.** It is done when its acceptance criteria
-are proven on the last stage the repo deploys to, which is production where
-one exists. An open PR is the middle. You merge, deploy, QA each stage and
-fix what QA finds, without being asked, and stop only where
-`pstack-rails:ship-task` says a person is needed.
-
 **What's fixed and what's open.** Goals, Non-goals and Acceptance criteria are
 the commitment, and only the human changes them. Functional requirements and
 Tech decisions are the starting design: pstack may change them, as an
@@ -149,8 +143,8 @@ Done when every PR is linked on the ticket and its status matches the PRs.
 
 ## 5. Ship it
 
-Run `pstack-rails:ship-task <KEY>` as soon as the PRs are open. Do not end
-the turn on a PR link. That skill gets the PRs green, verifies and merges
+Run `pstack-rails:ship-task <KEY>` once pstack has opened the ticket's last
+PR. Do not end the turn on a PR link. That skill gets the PRs green, verifies and merges
 them, deploys and QAs each stage, fixes what QA finds, and removes the
 worktrees.
 
