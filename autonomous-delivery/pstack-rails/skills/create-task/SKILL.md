@@ -89,7 +89,8 @@ sentences. What the system cannot do, not the story of finding out.
 **Non-goals**: what it does not attempt, each naming the ticket that owns it.
 
 **Acceptance criteria**: the observable outcomes pstack proves before the PR
-lands, and anyone can check on the shipped behaviour. Each bullet is a test someone can write, phrased as behaviour a
+lands and again on each stage the change deploys to, production last, and
+anyone can check on the shipped behaviour. Each bullet is a test someone can write, phrased as behaviour a
 person sees (a customer, an operator, a screen) in domain words, even for a
 backend-only ticket. Endpoints, status codes, field and table names, flags,
 retry counts and test data belong in Functional requirements; the criterion
@@ -162,8 +163,10 @@ contradicts it is a bug in the ticket.
 
 ## Before filing
 
-Run these, then show the full body and wait for a yes. Filing a new ticket is
-the human's call; updating one the user asked you to update is not.
+Run these, then file. When the user asked for the work in this session, the
+ask is the yes: file the ticket, give them the link, and go on. A ticket the
+user did not ask for (an idea, a follow-up you found) is shown in full and
+waits for a yes. Updating a ticket the user asked you to update never waits.
 
 1. **Duplicates.** Search open and closed tickets by the component touched
    plus a domain keyword. Reuse what covers the work; mark superseded ones as
