@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """PreToolUse hook on Edit, Write, MultiEdit, NotebookEdit and Bash: keeps the
-submodule folders (every path in .gitmodules) clean on main.
+submodule folders (every path in .gitmodules) clean, each on its configured branch.
 
 Denies a file edit whose path is inside a submodule folder, and a git write
 (commit, add, push, checkout, switch, reset, rebase, merge, stash, cherry-pick,
@@ -15,12 +15,13 @@ if tool in ("Edit", "Write", "MultiEdit", "NotebookEdit"):
     path = inp.get("file_path") or inp.get("notebook_path") or ""
     sub = in_submodule(path) if path else None
     if sub:
-        deny(f"{sub}/ is a submodule folder and stays clean on main. Work in a worktree at "
-             f"tickets/<branch>/{sub}/ (`git -C {sub} worktree add ../tickets/<branch>/{sub} -b <branch> origin/main`).")
+        deny(f"{sub}/ is a submodule folder and stays on its configured branch. Work in a worktree at "
+             f"tickets/<branch>/{sub}/ (`git -C {sub} worktree add ../tickets/<branch>/{sub} -b <branch> origin/<base>`, "
+             f"<base> being what `scripts/sync --branch {sub}` prints).")
 
 if re.search(GIT + r"(?:commit|add|push|checkout|switch|reset|rebase|merge|stash|cherry-pick|am)\b", flat):
     for d in git_dirs():
         sub = in_submodule(d)
         if sub:
-            deny(f"{sub}/ is a submodule folder and stays clean on main. "
+            deny(f"{sub}/ is a submodule folder and stays on its configured branch. "
                  f"Branch and commit in tickets/<branch>/{sub}/ instead.")
