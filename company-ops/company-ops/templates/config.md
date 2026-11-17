@@ -41,9 +41,9 @@ A stage left blank is skipped by the skills, which say so.
 
 ## Documents
 
-- **Roadmaps live in:** Claude Docs, one tab per roadmap
+- **Roadmaps live in:** Claude Whiteboards, one board per roadmap
 - **Title pattern:** `Prez Services — <Topic> Roadmap (<Country>)`
-- **Doc language:** English
+- **Board language:** English
 - **Kit language:** Spanish, in a numbered folder at the workspace root named after the topic
 
 ## Conventions

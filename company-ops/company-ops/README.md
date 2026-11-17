@@ -10,7 +10,7 @@ shape without having seen the last one.
 | `/company-ops:setup` | Writes `.company-ops/config.md` (entities, knowledge base, CRM adapter and stage map, document conventions, standing orders) and opens a PR |
 | `/company-ops:teardown` | Removes what setup wrote and opens a PR |
 | `/company-ops:crm` | Captures a lead, logs a call or message as a touch note, moves or adds a deal, and reviews the pipeline, through the CRM adapter the config names |
-| `/company-ops:create-roadmap <topic>` | Builds or updates a roadmap for a line of work that runs on external windows and deadlines (funding, hiring, certification, partnerships): one doc with nine fixed sections that leads with the decision to act on now, plus a numbered kit of drafts in the repo |
+| `/company-ops:create-roadmap <topic>` | Builds or updates a roadmap for a line of work that runs on external windows and deadlines (funding, hiring, certification, partnerships): one Claude Whiteboard with nine fixed regions that leads with the decision to act on now, plus a numbered kit of drafts in the repo |
 
 The CRM is an adapter. Setup asks which one the workspace uses, and the
 `crm` skill reads that adapter from `crms/` for how each operation is done.
