@@ -99,8 +99,10 @@ for repo in "$@"; do
     continue
   fi
 
-  # Switching away from a detached HEAD that no branch holds would leave its commits behind.
+  # Switching away from a detached HEAD that no branch holds would leave its commits behind. The commit
+  # the workspace records is held by the workspace, so a folder sitting on it has nothing to lose.
   if ! git -C "$dir" symbolic-ref --quiet HEAD >/dev/null &&
+     [ "$(git -C "$dir" rev-parse HEAD)" != "$(git -C "$root" rev-parse --verify --quiet "HEAD:$repo")" ] &&
      [ -z "$(git -C "$dir" for-each-ref --count=1 --contains HEAD refs/heads refs/remotes)" ]; then
     report nobranch
     continue

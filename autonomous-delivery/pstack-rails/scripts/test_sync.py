@@ -149,6 +149,12 @@ def detached_with_a_commit_on_no_branch(w):
     w.extra["local"] = commit(w.folder("alpha"), "local", "mine\n")
 
 
+def detached_at_a_recorded_commit_on_no_branch(w):
+    detached_with_a_commit_on_no_branch(w)
+    git("add", "alpha", cwd=w.root)
+    git("commit", "-q", "-m", "record alpha", cwd=w.root)
+
+
 def detached_on_a_remote_branch_only(w):
     w.advance("alpha")
     folder = w.folder("alpha")
@@ -330,6 +336,9 @@ CASES = [
         setup=lambda w: w.advance("alpha-lib", "development"), args=["libs/alpha/"],
         out=lambda w: [w.line("alpha-lib", "development", path="libs/alpha")],
         folders={"libs/alpha": ("development", tip("alpha-lib", "development"))}),
+    Row("a detached HEAD at the commit the workspace records syncs even when no branch holds it",
+        repos=[{"name": "alpha"}], setup=detached_at_a_recorded_commit_on_no_branch,
+        out=lambda w: [w.line("alpha")], folders={"alpha": ("main", tip("alpha"))}),
     Row("a workspace with no submodules has nothing to sync"),
     Row("--branch prints the configured branch of a submodule whose name differs from its path, and syncs nothing",
         repos=[{"name": "gamma-lib", "path": "libs/gamma", "branch": "development"}], setup=gamma_development_moved_on,
