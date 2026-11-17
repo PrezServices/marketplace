@@ -45,9 +45,18 @@ playbook and skills. pstack rails adds what a workspace needs around it:
   a multi-phase plan for big work), writes the design and slices into the
   ticket, and asks the author in plain language about anything unclear.
   Optional: "implement <KEY>" works on an uncurated ticket too.
+- **Submodule folders follow origin.** `scripts/sync` puts each submodule
+  folder on its configured branch (`submodule.<name>.branch` in `.gitmodules`,
+  `main` when unset) at origin's latest commit, so a session reads current
+  code and not the commit the workspace records. That commit is a snapshot and
+  is never bumped. The orders have a session run it at start and before it
+  reads a submodule folder, and `implement-task` runs it before it adds a
+  ticket worktree. It skips a folder with local changes, a diverged branch or
+  a branch checked out elsewhere (exit 2), and clones one that is missing.
+  Setup adds `ignore = all` to each submodule so `git status` stays quiet.
 - **Workspace guards**, the same as prez rails': submodule folders stay clean
-  on `main` (work happens in `tickets/<branch>/<repo>/` worktrees), no
-  sweeping `git add` at the root, no force push or push to `main`.
+  (work happens in `tickets/<branch>/<repo>/` worktrees), no sweeping
+  `git add` at the root, no force push or push to `main`.
 - **The cursor-team-kit skills pstack names**, ported: `/pstack-rails:deslop`,
   `/pstack-rails:control-ui`, `/pstack-rails:control-cli`. cursor-team-kit has
   no Claude Code build.
@@ -91,6 +100,8 @@ To remove it, or to switch delivery systems: `/pstack-rails:teardown`, then
 | `skills/setup`, `skills/teardown` | The contract's two skills |
 | `skills/deslop`, `skills/control-ui`, `skills/control-cli` | Ported from cursor-team-kit; never edited by hand |
 | `ported.json` | The source, pinned commit and file hashes of every ported skill |
+| `scripts/sync` | Puts each submodule folder on its configured branch at origin's latest commit |
+| `scripts/test_sync.py` | Drives `scripts/sync` against throwaway repos |
 | `scripts/port-cursor-plugin.py` | Copies the ported skills and checks them |
 | `templates/config.md` | What `setup` fills in |
 
@@ -119,7 +130,9 @@ bump `version` in `.claude-plugin/plugin.json`, and open a PR.
 ```sh
 python3 hooks/test_hooks.py
 python3 hooks/test_guards.py
+python3 scripts/test_sync.py
 python3 scripts/port-cursor-plugin.py --check
 ```
 
-Add a case with every guard rule change.
+Add a case with every guard rule change, and a row to `test_sync.py` with every
+change to the sync.
