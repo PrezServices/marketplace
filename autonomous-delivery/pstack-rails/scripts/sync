@@ -1,8 +1,9 @@
 #!/usr/bin/env bash
-# Usage: sync [repo...]
+# Usage: sync [repo...] | sync --branch <repo>
 # Puts each submodule folder (all of them by default) on its configured branch, fast-forwarded to origin's
 # latest commit. The branch is submodule.<name>.branch in .gitmodules, main when unset. A folder that is not
 # cloned yet is cloned; a folder that is already cloned is never moved to the commit the workspace records.
+# `--branch <repo>` prints that repo's configured branch and syncs nothing.
 # Run it from the workspace root: the root is the git repo of the current directory, not of this script.
 # Exit: 0 all synced; 2 some skipped (each named on stderr); any other non-zero is a hard failure
 # (unknown repo, clone or fetch error) and stops at that repo. A skip is a folder git would not clone
@@ -46,7 +47,19 @@ own_repo() {
   top="$(git -C "$dir" rev-parse --show-toplevel 2>/dev/null)" && [ "$top" = "$(cd "$dir" && pwd -P)" ]
 }
 
+# The branch a submodule follows. Git keys it by the submodule's name, which is not always its path.
+configured_branch() {
+  git -C "$root" config -f .gitmodules --default main --get "submodule.$(name_of "$1").branch"
+}
+
 paths="$(submodule_paths)"
+
+branch_only=0
+if [ "${1:-}" = --branch ]; then
+  [ $# -eq 2 ] || { echo "usage: sync --branch <repo>" >&2; exit 1; }
+  branch_only=1
+  shift
+fi
 
 if [ $# -eq 0 ]; then
   # shellcheck disable=SC2046
@@ -60,11 +73,16 @@ for repo in "$@"; do
   fi
 done
 
+if [ "$branch_only" -eq 1 ]; then
+  configured_branch "${1%/}"
+  exit 0
+fi
+
 skipped=0
 for repo in "$@"; do
   repo="${repo%/}"
   dir="$root/$repo"
-  branch="$(git -C "$root" config -f .gitmodules --default main --get "submodule.$(name_of "$repo").branch")"
+  branch="$(configured_branch "$repo")"
 
   # Only a folder with no .git is cloned: an unusable .git is a skip below, never something to clone over.
   if [ ! -e "$dir/.git" ]; then

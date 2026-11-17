@@ -40,8 +40,10 @@ This workspace delivers through **pstack**, installed at `${PSTACK_ROOT}`.
   `tickets/<branch>/<repo>/` worktrees, which `implement-task` creates.
 <!-- without tracker -->
 - Submodule folders, when there are any, stay clean. A change works in
-  `tickets/<branch>/<repo>/` worktrees. Run `${RAILS_ROOT}/scripts/sync <repo>`,
-  then `git -C <repo> worktree add ../tickets/<branch>/<repo> -b <branch> origin/<the repo's branch>`.
+  `tickets/<branch>/<repo>/` worktrees. Run `${RAILS_ROOT}/scripts/sync <repo>`
+  (stop if it says `not cloned`), then
+  `git -C <repo> worktree add ../tickets/<branch>/<repo> -b <branch> origin/<base>`,
+  with `<base>` printed by `${RAILS_ROOT}/scripts/sync --branch <repo>`.
 <!-- end -->
 - Stage by path at the root. Guards refuse edits and git writes in a
   submodule folder, sweeping adds at the root, force pushes and pushes to

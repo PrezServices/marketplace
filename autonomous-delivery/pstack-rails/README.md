@@ -49,11 +49,13 @@ playbook and skills. pstack rails adds what a workspace needs around it:
   folder on its configured branch (`submodule.<name>.branch` in `.gitmodules`,
   `main` when unset) at origin's latest commit, so a session reads current
   code and not the commit the workspace records. That commit is a snapshot and
-  is never bumped. The orders have a session run it at start and before it
-  reads a submodule folder, and `implement-task` runs it before it adds a
-  ticket worktree. It skips a folder with local changes, commits on no branch, a
-  diverged branch, a branch checked out elsewhere or a clone git was told not
-  to make (exit 2), and clones one that is missing.
+  is never bumped. The orders have a session pull the workspace root
+  (fast-forward only) and run it at start and before it reads a submodule
+  folder, and `implement-task` runs it before it adds a ticket worktree,
+  taking the worktree's base from `sync --branch <repo>`. It skips a folder
+  with local changes, commits on no branch, a diverged branch, a branch
+  checked out elsewhere or a clone git was told not to make (exit 2), and
+  clones one that is missing.
   Setup adds `ignore = all` to each submodule so `git status` stays quiet.
 - **Workspace guards**, the same as prez rails': submodule folders stay clean
   (work happens in `tickets/<branch>/<repo>/` worktrees), no sweeping
@@ -101,7 +103,7 @@ To remove it, or to switch delivery systems: `/pstack-rails:teardown`, then
 | `skills/setup`, `skills/teardown` | The contract's two skills |
 | `skills/deslop`, `skills/control-ui`, `skills/control-cli` | Ported from cursor-team-kit; never edited by hand |
 | `ported.json` | The source, pinned commit and file hashes of every ported skill |
-| `scripts/sync` | Puts each submodule folder on its configured branch at origin's latest commit |
+| `scripts/sync` | Puts each submodule folder on its configured branch at origin's latest commit; `--branch <repo>` prints that branch |
 | `scripts/test_sync.py` | Drives `scripts/sync` against throwaway repos |
 | `scripts/port-cursor-plugin.py` | Copies the ported skills and checks them |
 | `templates/config.md` | What `setup` fills in |

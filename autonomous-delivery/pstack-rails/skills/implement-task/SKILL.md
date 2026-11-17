@@ -64,10 +64,13 @@ Done when the ticket passes every row, or the user chose to resume.
   ${CLAUDE_PLUGIN_ROOT}/scripts/sync <repo>...
   ```
 
-  Go on when it exits 0 or 2. Exit 2 means a folder was skipped (local
-  changes, a diverged branch, a branch checked out elsewhere) and is named on
-  stderr; the fetch still ran, so `origin/<base>` is current. Stop on any
-  other exit and tell the user what it printed. Then, for each repo:
+  Go on when it exits 0 or 2, unless it names a repo as `not cloned`: that
+  folder is not a repo of its own, and `git -C` in it would act on the
+  workspace, so stop and tell the user. Otherwise exit 2 means a folder was
+  skipped (local changes, commits on no branch, a diverged branch, a branch
+  checked out elsewhere) and is named on stderr; the fetch still ran, so
+  `origin/<base>` is current. Stop on any other exit and tell the user what it
+  printed. Then, for each repo:
 
   ```sh
   git -C <repo> worktree add ../tickets/<branch>/<repo> <branch>                     # the branch exists locally
@@ -75,10 +78,9 @@ Done when the ticket passes every row, or the user chose to resume.
   git -C <repo> worktree add --no-track -b <branch> ../tickets/<branch>/<repo> origin/<base>  # new
   ```
 
-  `<base>` is the repo's configured branch: `submodule.<repo>.branch` in
-  `.gitmodules`, `main` when unset
-  (`git config -f .gitmodules --default main --get submodule.<repo>.branch`).
-  A repo pstack finds it needs later gets its worktree the same way.
+  `<base>` is the repo's configured branch, which the sync prints:
+  `${CLAUDE_PLUGIN_ROOT}/scripts/sync --branch <repo>`. A repo pstack finds it
+  needs later gets its worktree the same way.
 
 ## 3. Plan the verification
 
