@@ -16,13 +16,29 @@ from workflow_scan import scan  # noqa: E402
 failures = []
 
 
-def workspace(configured, meta_repo=True):
+SUBAGENTS = """# pstack-rails config
+
+## Subagents
+
+The guards pass these agent types too.
+
+- `Explore`: a read-only look
+- `web-fetch`: reads web pages
+
+## Standing orders
+
+- `general-purpose` is not listed: it sits in another section.
+"""
+
+
+def workspace(configured, meta_repo=True, config_text=SUBAGENTS):
     root = os.path.realpath(tempfile.mkdtemp(prefix="pstack-rails-test-"))
     if meta_repo:
         open(os.path.join(root, ".gitmodules"), "w").close()
     if configured:
         os.makedirs(os.path.join(root, ".pstack-rails"))
-        open(os.path.join(root, ".pstack-rails", "config.md"), "w").close()
+        with open(os.path.join(root, ".pstack-rails", "config.md"), "w") as config_file:
+            config_file.write(config_text)
     return root
 
 
@@ -42,6 +58,10 @@ NO_PSTACK = claude_config(False)
 NEWEST = os.path.join(CONFIG, "plugins", "cache", "cursor-plugins", "pstack", "0.15.36")
 WHY_SKILL = os.path.join(NEWEST, "skills", "why", "SKILL.md")
 SET_UP, NOT_SET_UP, PLAIN = workspace(True), workspace(False), workspace(False, meta_repo=False)
+# Set up before the Subagents section existed: the guards keep passing Explore, as they did then.
+NO_SECTION = workspace(True, config_text="# pstack-rails config\n\n## Standing orders\n\n- none\n")
+# The section is there and empty: only pstack's own agents pass.
+EMPTY_SECTION = workspace(True, config_text="# pstack-rails config\n\n## Subagents\n\nNone listed.\n")
 FAKE_SKILL = os.path.join(SET_UP, "fake", "pstack", "skills", "a", "SKILL.md")
 os.makedirs(os.path.dirname(FAKE_SKILL))
 open(FAKE_SKILL, "w").close()
@@ -70,7 +90,14 @@ AGENT_CASES = [
     ("poteto-agent", {"subagent_type": "pstack:poteto-agent", "prompt": "x"}, SET_UP, False),
     ("comment-sicko", {"subagent_type": "pstack:comment-sicko", "prompt": "x"}, SET_UP, False),
     ("Explore", {"subagent_type": "Explore", "prompt": "x"}, SET_UP, False),
+    ("web-fetch listed", {"subagent_type": "web-fetch", "prompt": "x"}, SET_UP, False),
     ("general-purpose", {"subagent_type": "general-purpose", "prompt": "x"}, SET_UP, True),
+    ("a name in backticks outside the Subagents section", {"subagent_type": "general-purpose", "prompt": "x"}, SET_UP, True),
+    ("a near miss on a listed name", {"subagent_type": "web-fetch2", "prompt": "x"}, SET_UP, True),
+    ("Explore with no Subagents section", {"subagent_type": "Explore", "prompt": "x"}, NO_SECTION, False),
+    ("web-fetch with no Subagents section", {"subagent_type": "web-fetch", "prompt": "x"}, NO_SECTION, True),
+    ("Explore with an empty Subagents section", {"subagent_type": "Explore", "prompt": "x"}, EMPTY_SECTION, True),
+    ("poteto-agent with an empty Subagents section", {"subagent_type": "pstack:poteto-agent", "prompt": "x"}, EMPTY_SECTION, False),
     ("no type", {"prompt": "x"}, SET_UP, True),
     ("routed by an installed skill", {"subagent_type": "general-purpose", "prompt": f"Follow {WHY_SKILL} now."}, SET_UP, False),
     ("routed by a missing skill", {"subagent_type": "general-purpose", "prompt": "Follow /tmp/pstack/skills/why/SKILL.md"}, SET_UP, True),
@@ -83,6 +110,11 @@ for name, tool_input, project, should_deny in AGENT_CASES:
     expect(f"guard-agent {name}", run("guard-agent.py", project, payload), should_deny)
 expect("guard-agent unreadable input", run("guard-agent.py", SET_UP, "not json"), True)
 expect("guard-agent input that isn't an object", run("guard-agent.py", SET_UP, "[1]"), True)
+# The deny names the workspace's listed agents, so the session sees what this workspace passes.
+reason = run("guard-agent.py", SET_UP, json.dumps({"tool_name": "Agent", "tool_input": {"subagent_type": "x"}})
+             ).get("hookSpecificOutput", {}).get("permissionDecisionReason", "")
+if not all(name in reason for name in ('"Explore"', '"web-fetch"', "Subagents")):
+    failures.append(f"guard-agent deny text should name the listed agents and the section: {reason}")
 
 
 # The Workflow guard.
@@ -92,6 +124,7 @@ WORKFLOW_CASES = [
     ("no agentType", 'await agent("x", {label: "a"})', True),
     ("no options", 'await agent("x")', True),
     ("other type", 'await agent("x", {agentType: "general-purpose"})', True),
+    ("listed type", 'await agent("x", {agentType: "web-fetch"})', False),
     ("const literal", 'const T = "pstack:comment-sicko"\nawait agent("x", {agentType: T})', False),
     ("shorthand const", 'const agentType = "Explore"\nawait agent("x", {agentType})', False),
     ("variable type", 'await agent("x", {agentType: pick()})', True),
