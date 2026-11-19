@@ -80,6 +80,15 @@ what it can't tell you, one question at a time:
   repo and stage, lowest first. A repo with no deploy gets one row saying
   so. Ask only for what the repos cannot show: the test identities, and the
   flows QA must never drive on production.
+- **Subagents.** Keep the template's `Explore` and `web-fetch` rows and ask
+  whether the workspace passes any other agent type. Propose only agents
+  that cannot do the work outside pstack: read-only ones, or ones that stand
+  in for a tool. The guards match the name alone, so for each listed name
+  look for an agent defined under it (`.claude/agents/`, `~/.claude/agents/`,
+  the enabled plugins' `agents/`) and show the user what it can do before
+  keeping the row. An empty list is allowed: then only pstack's own agents
+  pass. On a re-run, a config with no Subagents section gets one; until then
+  the guards pass only `Explore`, as they did before the section existed.
 - **Standing orders**, if any.
 
 Done when every section is filled or explicitly `none`, and the user has seen

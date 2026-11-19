@@ -23,8 +23,11 @@ This workspace delivers through **pstack**, installed at `${PSTACK_ROOT}`.
 - Open a pstack skill by its `SKILL.md` under `${PSTACK_ROOT}/skills/`, and
   map Cursor names with `${PSTACK_ROOT}/docs/harness/claude-code.md`.
 - Subagents run as `pstack:poteto-agent`, or `pstack:comment-sicko` for the
-  no-comments pass; a read-only look may use `Explore`. A hook refuses any
-  other type, in the `Agent` tool and in `Workflow` scripts alike.
+  no-comments pass, or as a type the config's Subagents section lists (such
+  as `Explore` for a read-only look, `web-fetch` to read a web page). A hook
+  refuses any other type, in the `Agent` tool and in `Workflow` scripts
+  alike. The list is the operator's: ask, never edit it to get an agent
+  through.
 - When pstack names a skill from `cursor-team-kit` (`/deslop`, `control-ui`,
   `control-cli`), it is `/pstack-rails:<name>` here.
 - Submodule folders follow origin, not the commit this workspace records, and

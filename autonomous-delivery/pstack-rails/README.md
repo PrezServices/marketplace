@@ -10,9 +10,12 @@ playbook and skills. pstack rails adds what a workspace needs around it:
   resume, clear and compaction, points the session at `/pstack:poteto-mode`
   and the newest installed pstack. It says where to start, not what to do.
 - **Subagents stay pstack agents.** Guards on `Agent` and `Workflow` refuse a
-  spawn that isn't `pstack:poteto-agent`, `pstack:comment-sicko`, a read-only
-  `Explore`, or an agent whose prompt names an installed pstack `SKILL.md`.
-  The refusal names the fix.
+  spawn that isn't `pstack:poteto-agent`, `pstack:comment-sicko`, an agent
+  whose prompt names an installed pstack `SKILL.md`, or a type the
+  workspace lists in its config's Subagents section. Setup writes that list
+  (`Explore` and `web-fetch` to start), so each workspace decides its own
+  exceptions; a config without the section passes `Explore` only. The
+  refusal names the fix.
 - **Tickets before pstack.** `/pstack-rails:create-task` files a ticket with
   seven fixed sections (problem, context, goals, non-goals, acceptance
   criteria, functional requirements, tech decisions) in Linear, Jira or

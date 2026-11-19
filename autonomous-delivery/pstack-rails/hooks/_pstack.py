@@ -2,22 +2,25 @@
 
 The hooks run in every project the plugin is enabled in, and act only in a
 workspace /pstack-rails:setup configured (.pstack-rails/config.md exists).
+Which agent types the guards pass besides pstack's own is the workspace's
+call: setup writes them into the config's Subagents section.
 """
 import json, os, re, sys
 
 POTETO_AGENT = "pstack:poteto-agent"
 COMMENT_SICKO = "pstack:comment-sicko"
 PSTACK_AGENTS = (POTETO_AGENT, COMMENT_SICKO)
-READ_ONLY_AGENT = "Explore"
+# A config written before the Subagents section existed passes what the guards passed then.
+UNLISTED_DEFAULT = ("Explore",)
+SECTION = re.compile(r"^##\s+Subagents\s*$(.*?)(?=^##\s|\Z)", re.M | re.S)
+LISTED = re.compile(r"^\s*[-*]\s+`([^`\s]+)`", re.M)
 VERSION = re.compile(r"^\d+\.\d+\.\d+$")
 SKILL_FILE = re.compile(r"""[^\s"'`()<>,;|]+/SKILL\.md""")
 PSTACK_SKILL = re.compile(r"(?:^|/)pstack/(?:[^/]+/)*skills/[a-z0-9][a-z0-9-]*/SKILL\.md$")
 
 RULE = "This workspace delivers through pstack, and its subagents run as pstack agents (.pstack-rails/config.md)."
-EXCEPTIONS = (f'A read-only look may use "{READ_ONLY_AGENT}". A pstack skill that starts general-purpose agents '
-              "(why, swarm, reflect, arena, interrogate) may keep that type once each prompt names the absolute "
-              "path of an installed pstack SKILL.md.")
-BRIEF = f'Spawn it with subagent_type "{POTETO_AGENT}", or "{COMMENT_SICKO}" for the no-comments pass. {EXCEPTIONS}'
+SKILL_RULE = ("A pstack skill that starts general-purpose agents (why, swarm, reflect, arena, interrogate) may "
+              "keep that type once each prompt names the absolute path of an installed pstack SKILL.md.")
 
 
 def project_root():
@@ -26,6 +29,28 @@ def project_root():
 
 def configured(root):
     return os.path.isfile(os.path.join(root, ".pstack-rails", "config.md"))
+
+
+def listed_agents(root=None):
+    """The agent types the workspace config's Subagents section lists, which the guards pass too.
+    With no such section, the types the guards passed before the section existed."""
+    try:
+        with open(os.path.join(root or project_root(), ".pstack-rails", "config.md"), errors="replace") as config_file:
+            section = SECTION.search(config_file.read())
+    except OSError:
+        return UNLISTED_DEFAULT
+    return tuple(LISTED.findall(section.group(1))) if section else UNLISTED_DEFAULT
+
+
+def exceptions(listed):
+    names = ", ".join(f'"{name}"' for name in listed)
+    passed = (f"This workspace also passes {names}, as the Subagents section of .pstack-rails/config.md lists."
+              if listed else "The Subagents section of .pstack-rails/config.md lists no other agent types.")
+    return f"{passed} {SKILL_RULE}"
+
+
+def brief(listed):
+    return f'Spawn it with subagent_type "{POTETO_AGENT}", or "{COMMENT_SICKO}" for the no-comments pass. {exceptions(listed)}'
 
 
 def plugins_cache():
@@ -73,8 +98,8 @@ def names_installed_skill(text):
     return False
 
 
-def allowed(agent_type, prompt):
-    return agent_type in PSTACK_AGENTS or agent_type == READ_ONLY_AGENT or names_installed_skill(prompt)
+def allowed(agent_type, prompt, listed):
+    return agent_type in PSTACK_AGENTS or agent_type in listed or names_installed_skill(prompt)
 
 
 def shown(value, limit=80):
