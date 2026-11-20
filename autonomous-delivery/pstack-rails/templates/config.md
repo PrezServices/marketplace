@@ -58,6 +58,19 @@ has one row that says so, and its last stage is the merged PR.
 | --- | --- | --- | --- | --- | --- |
 | `<repo>` | `<development \| production \| none>` | <on merge to `<branch>`, workflow file; or the dispatch command> | <URL> | <the verify skill, the test identities, what proves the revision> | <flows and identities QA must not touch> |
 
+## Subagents
+
+The `Agent` and `Workflow` guards pass pstack's own agents
+(`pstack:poteto-agent`, `pstack:comment-sicko`) and any agent whose prompt
+names an installed pstack `SKILL.md`. They also pass each agent type listed
+here, and nothing else. List only agents that cannot do the work outside
+pstack: read-only ones, or ones that stand in for a tool. The guards match the
+name alone, so a project, user or plugin agent defined under a listed name
+passes too, with whatever tools it declares.
+
+- `Explore`: a read-only look
+- `web-fetch`: reads web pages, for a session with no WebFetch tool of its own
+
 ## Standing orders
 
 The operator's orders and gates for this workspace, read before acting. Keep

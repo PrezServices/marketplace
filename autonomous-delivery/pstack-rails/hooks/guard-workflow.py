@@ -3,20 +3,20 @@
 
 Reads the script inline or by scriptPath, finds every agent() call with
 workflow_scan, and refuses the run when a call sets no agentType, one that
-isn't pstack's (or Explore), or one the scanner can't read, unless its prompt
-names an installed pstack SKILL.md. Lists up to five reasons by line.
+isn't pstack's or listed in the config's Subagents section, or one the
+scanner can't read, unless its prompt names an installed pstack SKILL.md. Lists up to five reasons by line.
 """
 import os, sys
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-from _pstack import EXCEPTIONS, COMMENT_SICKO, POTETO_AGENT, RULE, allowed, deny, read_event, shown
+from _pstack import COMMENT_SICKO, POTETO_AGENT, RULE, allowed, deny, exceptions, listed_agents, read_event, shown
 from workflow_scan import scan
 
 LISTED = 5
-FIX = (f'Set agentType as a string literal on every agent() call, "{POTETO_AGENT}" or "{COMMENT_SICKO}" '
-       f"for the no-comments pass. {EXCEPTIONS}")
-
 event = read_event()
+listed = listed_agents()
+FIX = (f'Set agentType as a string literal on every agent() call, "{POTETO_AGENT}" or "{COMMENT_SICKO}" '
+       f"for the no-comments pass. {exceptions(listed)}")
 tool_input = event.get("tool_input") or {}
 sources = [tool_input["script"]] if isinstance(tool_input.get("script"), str) else []
 script_path = tool_input.get("scriptPath")
@@ -37,7 +37,7 @@ for source in sources:
     for call in calls:
         agent_type = call["agent_type"]
         named = agent_type[1] if agent_type[0] == "literal" else None
-        if allowed(named, call["prompt"]):
+        if allowed(named, call["prompt"], listed):
             continue
         if agent_type[0] == "literal":
             reasons.append(f'line {call["line"]}: agent() sets agentType "{shown(agent_type[1])}"')
